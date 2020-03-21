@@ -2,3 +2,6 @@ pip >= 20
 setuptools >= 46
 pandas
 scikit-learn
+bokeh
+numpy
+selenium
