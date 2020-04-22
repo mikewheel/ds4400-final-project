@@ -103,6 +103,8 @@ if __name__ == "__main__":
     #setting 11 of the inner lists to have 2 for a single feature (x_i and x_i^2 will be present in the bfe)
     for i in range(12, 23):
         powers_list[i][i - 12] = 2
+
+    #generating a list of phi(x) for different basis functions
     rw_train_x_list, rw_valid_x_list, rw_test_x_list = [
         [basis_expansion(df, powers)
          for powers in powers_list]
