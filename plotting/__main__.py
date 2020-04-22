@@ -8,14 +8,13 @@ from bokeh.layouts import row
 from bokeh.plotting import figure
 from contextlib import suppress
 from numpy import histogram
-from pandas import DataFrame, read_csv
+from pandas import read_csv
 from statistics import mean, stdev
-
-from config import DATA_DIR
+from config import INPUT_DATA_DIR, VISUALIZATION_DATA_DIR
 
 wine_data = {
-    "red": read_csv(DATA_DIR / "wine_quality_red.csv"),
-    "white": read_csv(DATA_DIR / "wine_quality_white.csv"),
+    "red": read_csv(INPUT_DATA_DIR / "wine_quality_red.csv"),
+    "white": read_csv(INPUT_DATA_DIR / "wine_quality_white.csv"),
 }
 
 wine_features = {
@@ -45,4 +44,5 @@ for feature in wine_features:
         plots[color] = plot
     big_plot = row(*[val for key, val in plots.items()])
     with suppress(KeyboardInterrupt):
-        export_png(big_plot, filename=DATA_DIR / f'joint_distribution_{feature}.png')
+        export_png(big_plot, filename=VISUALIZATION_DATA_DIR / f'joint_distribution_{feature}.png')
+        pass

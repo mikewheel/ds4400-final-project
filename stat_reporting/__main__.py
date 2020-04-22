@@ -7,9 +7,9 @@ Written by Michael Wheeler and Jay Sherman.
 from scipy import stats
 from pandas import read_csv
 from statistics import mean, stdev
+import sys
+print(sys.path)
 from config import INPUT_DATA_DIR
-
-
 
 
 wine_data = {
