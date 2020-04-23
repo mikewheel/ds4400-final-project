@@ -8,9 +8,13 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import List
 import pandas as pd
-from config import INPUT_DATA_DIR
+from config import INPUT_DATA_DIR, OUTPUT_DATA_DIR
 from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge
+from sklearn.metrics import mean_squared_error, confusion_matrix
+import pickle
+import os
+
 
 
 def basis_expansion(data: pd.DataFrame, powers=None) -> pd.DataFrame:
@@ -46,6 +50,8 @@ def basis_expansion(data: pd.DataFrame, powers=None) -> pd.DataFrame:
         powers = [1 for i in range(data.shape[1])]
     
     if len(powers) != data.shape[1]:
+        print(powers)
+        print(data.shape)
         raise ValueError("Length of maximal powers is not equal to number of features.")
 
     phi = pd.DataFrame()
@@ -76,6 +82,115 @@ def split_data(data: pd.DataFrame) -> List[pd.DataFrame]:
     return train_data, validation_data, test_data
 
 
+def run_linear_models_help(train_x: pd.DataFrame, valid_x: pd.DataFrame, test_x: pd.DataFrame,
+                           train_y: pd.DataFrame, valid_y: pd.DataFrame, test_y: pd.DataFrame,
+                           color: str, bfe_desc: str):
+    """Run linear regression to predict the quality of wine based on physicochemical properties.
+
+    The optimal value of theta is found using the training data, then the optimal value of the regularization
+    parameter is found by seeing which of {0,0.01,0.1,1,10} yields the lowest validation error. Saves the model to a
+    pickle file in the appropriate location inside the output/linear
+    directory based on the values of color and bfe_desc, and saves a text file to the same directory
+    describing the validation error for each regularization parameter value, which regularization parameter was used,
+    the value of theta, the training error, and the test error.
+
+    :param train_x: the input data for the model for the training set
+    :param valid_x: the input data for the model for the validation set
+    :param test_x: the input data for the model for the test set
+    :param train_y: the quality of the wines in the training set
+    :param valid_y: the quality of the wines in the validation set
+    :param test_y: the quality of the wines in the test set
+    :param color: the color of the wine ("red" or "white")
+    :param bfe_desc: a description of the basis function expansion used
+    """
+    models = [[lam, Ridge(random_state = 0, alpha = lam, fit_intercept = False, normalize = False)]
+              for lam in [0.01,0.1, 1, 10]]
+    models.append([0, LinearRegression()])
+
+    for model in models:
+        model[1].fit(train_x, train_y)
+        theta = model[1].coef_
+        model.append(theta)
+        error = mean_squared_error(valid_y, model[1].predict(valid_x))
+        model.append(error)
+
+    models.sort(key = lambda a: a[3], reverse = True)
+    best_model = models[0]
+
+    train_error = mean_squared_error(train_y, best_model[1].predict(train_x))
+    valid_error = mean_squared_error(valid_y, best_model[1].predict(valid_x))
+    test_error = mean_squared_error(test_y, best_model[1].predict(test_x))
+
+    dir = OUTPUT_DATA_DIR / "linear" / color / bfe_desc
+    try:
+        os.mkdir(dir)
+    except FileExistsError:
+        pass
+
+    pickle.dump(best_model, open(dir / "model.p", "wb"))
+
+    with open(dir / "log.txt", "wb") as f:
+        f.write(f"theta: {best_model[2]}")
+        f.write(f"training error: {train_error}")
+        f.write(f"validation error: {valid_error}")
+        f.write(f"test error: {test_error}")
+        models.sort(key=lambda a: a[0], reverse=True)
+        for model in models:
+            f.write("")
+            f.write(f"lambda: {model[0]}")
+            f.write(f"validation error: {model[3]}")
+
+
+def run_linear_models(rw_train_x_list: List[pd.DataFrame], rw_valid_x_list: List[pd.DataFrame],
+                      rw_test_x_list: List[pd.DataFrame], rw_train_y: pd.DataFrame,
+                      rw_valid_y: pd.DataFrame, rw_test_y: pd.DataFrame,
+                      ww_train_x_list: List[pd.DataFrame], ww_valid_x_list: List[pd.DataFrame],
+                      ww_test_x_list: List[pd.DataFrame], ww_train_y: pd.DataFrame,
+                      ww_valid_y: pd.DataFrame, ww_test_y: pd.DataFrame):
+    """Run linear regression to predict the quality of red and white wine.
+
+    Runs separate models for red and white wine. The optimal value of theta is found using the training data,
+    then the optimal value of the regularization parameter is found by seeing which of {0,0.01,0.1,1,10} yields
+    the lowest validation error. Saves the model to a pickle file in the appropriate location inside the output/linear
+    directory based on the wine color and the basis function expansion, and saves a text file to the same directory
+    describing the validation error for each regularization parameter value, which regularization parameter was used,
+    the value of theta, the training error, and the test error.
+
+    :param rw_train_x_list: a list of the input features for the training set with basis function expansions applied
+                            for red wines
+    :param rw_valid_x_list: a list of the input features for the validation set with basis function expansions applied
+                            for red wines
+    :param rw_test_x_list: a list of the input features for the test set with basis function expansions applied
+                           for red wines
+    :param rw_train_y: the quality of the wines in the training set for red wines
+    :param rw_valid_y: the quality of the wines in the validation set for red wines
+    :param rw_test_y: the quality of the wines in the test set for red wines
+    :param ww_train_x_list: a list of the input features for the training set with basis function expansions applied
+                            for white wines
+    :param ww_valid_x_list: a list of the input features for the validation set with basis function expansions applied
+                            for white wines
+    :param ww_test_x_list: a list of the input features for the test set with basis function expansions applied
+                           for white wines
+    :param ww_train_y: the quality of the wines in the training set for white wines
+    :param ww_valid_y: the quality of the wines in the validation set for white wines
+    :param ww_test_y: the quality of the wines in the test set for white wines
+    """
+    bfe_dict = {1: "base", 2: "fixed_acidity_removed", 3: "volatine_acidity_removed", 4: "citric_acid_removed",
+                5: "residual_sugar_removed", 6: "chlorides_removed", 7:"free_sulfur_dioxide_removed",
+                8: "total_sulfur_dioxide_removed", 9: "density_removed", 10: "pH_removed", 11: "suplhates_removed",
+                12: "alcohol_removed", 13: "fixed_acidity_squared", 14: "volatine_acidity_squared",
+                15: "citric_acid_squared",
+                16: "residual_sugar_squared", 17: "chlorides_squared", 18:"free_sulfur_dioxide_squared",
+                19: "total_sulfur_dioxide_squared", 20: "density_squared", 21: "pH_squared", 22: "suplhates_squared",
+                23: "alcohol_squared"}
+
+    for i in range(23):
+        run_linear_models_help(rw_train_x_list[i], rw_valid_x_list[i], rw_test_x_list[i],
+                               rw_train_y, rw_valid_y, rw_test_y, "red", bfe_dict[i + 1])
+        run_linear_models_help(ww_train_x_list[i], ww_valid_x_list[i], ww_test_x_list[i],
+                               ww_train_y, ww_valid_y, ww_test_y, "white", bfe_dict[i + 1])
+
+
 if __name__ == "__main__":
 
     parser = ArgumentParser()
@@ -87,16 +202,16 @@ if __name__ == "__main__":
     white_wines = pd.read_csv(INPUT_DATA_DIR / "wine_quality_white.csv")
     rw_train, rw_valid, rw_test = split_data(red_wines)
     ww_train, ww_valid, ww_test = split_data(white_wines)
-    rw_train_x, rw_valid_x, rw_test_x = [df.ix[:, range(11)]
+    rw_train_x, rw_valid_x, rw_test_x = [df.iloc[:, range(11)]
                                          for df in [rw_train, rw_valid, rw_test]]
-    ww_train_x, ww_valid_x, ww_test_x = [df.ix[:, range(11)]
+    ww_train_x, ww_valid_x, ww_test_x = [df.iloc[:, range(11)]
                                          for df in [ww_train, ww_valid, ww_test]]
-    rw_train_y, rw_valid_y, rw_test_y = [df.ix[:, range(11,12)]
+    rw_train_y, rw_valid_y, rw_test_y = [df.iloc[:, range(11,12)]
                                          for df in [rw_train, rw_valid, rw_test]]
-    ww_train_y, ww_valid_y, ww_test_y = [df.ix[:, range(11,12)]
+    ww_train_y, ww_valid_y, ww_test_y = [df.iloc[:, range(11,12)]
                                          for df in [ww_train, ww_valid, ww_test]]
 
-    powers_list = [[1 for i in range(12)] for j in range(23)] #the values for exponents for all basis function expansions
+    powers_list = [[1 for i in range(11)] for j in range(23)] #the values for exponents for all basis function expansions
     #setting 11 of the inner lists to have 0 for a single feature (will remove the feature)
     for i in range(1,12):
         powers_list[i][i - 1] = 0
@@ -120,7 +235,10 @@ if __name__ == "__main__":
     if model == "logistic":
         model = LogisticRegression("l2", random_state=0)
     elif model == "linear":
-        model = LinearRegression(random_state=0)
+        run_linear_models(rw_train_x_list, rw_valid_x_list, rw_test_x_list,
+                          rw_train_y, rw_valid_y, rw_test_y,
+                          ww_train_x_list, ww_valid_x_list, ww_test_x_list,
+                          ww_train_y, ww_valid_y, ww_test_y)
     elif model == "svm":
         model = SVC(kernel="linear", random_state=0)
     else:
