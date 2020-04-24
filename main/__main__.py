@@ -339,6 +339,7 @@ def run_logistic_models(train_x_list: List[pd.DataFrame], valid_x_list: List[pd.
 
 if __name__ == "__main__":
 
+
     parser = ArgumentParser()
     parser.add_argument("--model", nargs=1, type=str, metavar="model")
     args = parser.parse_args()
@@ -346,6 +347,7 @@ if __name__ == "__main__":
 
     red_wines = pd.read_csv(INPUT_DATA_DIR / "wine_quality_red.csv")
     white_wines = pd.read_csv(INPUT_DATA_DIR / "wine_quality_white.csv")
+
     rw_train, rw_valid, rw_test = split_data(red_wines)
     ww_train, ww_valid, ww_test = split_data(white_wines)
     rw_train_x, rw_valid_x, rw_test_x = [df.iloc[:, range(11)]
@@ -380,24 +382,28 @@ if __name__ == "__main__":
     all_train_x_list = []
     all_valid_x_list = []
     all_test_x_list = []
+
     for i in range(len(ww_train_x_list)):
-        combined_train_x = pd.concat(ww_train_x_list[i], rw_train_x_list[i], ignore_index = True)
+        combined_train_x = pd.concat([ww_train_x_list[i], rw_train_x_list[i]], ignore_index = True)
+        print(ww_train_x_list[i].shape)
+        print(rw_train_x_list[i].shape)
+        print(combined_train_x.shape)
         combined_train_x["white_wine"] = list(np.repeat([1,0], [4898, 1599], axis=0))
         all_train_x_list.append(combined_train_x)
 
-        combined_valid_x = pd.concat(ww_valid_x_list[i], rw_valid_x_list[i], ignore_index = True)
+        combined_valid_x = pd.concat([ww_valid_x_list[i], rw_valid_x_list[i]], ignore_index = True)
         combined_valid_x["white_wine"] = list(np.repeat([1,0], [4898, 1599], axis=0))
         all_valid_x_list.append(combined_valid_x)
 
-        combined_test_x = pd.concat(ww_test_x_list[i], rw_test_x_list[i], ignore_index = True)
+        combined_test_x = pd.concat([ww_test_x_list[i], rw_test_x_list[i]], ignore_index = True)
         combined_test_x["white_wine"] = list(np.repeat([1,0], [4898, 1599], axis=0))
         all_test_x_list.append(combined_test_x)
 
-    all_train_y = pd.concat(ww_train_y, rw_train_y, ignore_index=False)
+    all_train_y = pd.concat([ww_train_y, rw_train_y], ignore_index=False)
     all_train_y["white_wine"] = list(np.repeat([1, 0], [4898, 1599], axis=0))
-    all_valid_y = pd.concat(ww_valid_y, rw_valid_y, ignore_index=False)
+    all_valid_y = pd.concat([ww_valid_y, rw_valid_y], ignore_index=False)
     all_valid_y["white_wine"] = list(np.repeat([1, 0], [4898, 1599], axis=0))
-    all_test_y = pd.concat(ww_test_y, rw_test_y, ignore_index=False)
+    all_test_y = pd.concat([ww_test_y, rw_test_y], ignore_index=False)
     all_test_y["white_wine"] = list(np.repeat([1, 0], [4898, 1599], axis=0))
 
 
