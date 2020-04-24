@@ -1,0 +1,24 @@
+omega: N/A
+lambda: 10
+
+For Training Set
+Accuracy: 0.9038987688098495
+Sensitivity: 0.9283121597096189
+Specificity: 0.8291666666666667
+Precision: 0.9432918395573997
+Power: 0.7907284768211921
+
+For Validation Set
+Accuracy: 0.9038987688098495
+Sensitivity: 0.9283121597096189
+Specificity: 0.8291666666666667
+Precision: 0.9432918395573997
+Power: 0.7907284768211921
+
+For Test Set
+Validation Accuracy: 0.9076923076923077
+test accuracy: 0.9076923076923077
+Sensitivity: 0.9163265306122449
+Specificity: 0.88125
+Precision: 0.9594017094017094
+Power: 0.7747252747252747
