@@ -1,5 +1,7 @@
+from contextlib import suppress
 from datetime import datetime
 from logging import Formatter, getLogger, FileHandler, StreamHandler, INFO, DEBUG
+from os import mkdir
 from pathlib import Path
 from sys import stdout
 
@@ -9,7 +11,19 @@ INPUT_DATA_DIR = DATA_DIR / "input"
 OUTPUT_DATA_DIR = DATA_DIR / "output"
 VISUALIZATION_DATA_DIR = DATA_DIR / "visualizations"
 
-#descriptions of the basis function expansions
+with suppress(FileExistsError):
+    mkdir(DATA_DIR)
+
+with suppress(FileExistsError):
+    mkdir(INPUT_DATA_DIR)
+    
+with suppress(FileExistsError):
+    mkdir(OUTPUT_DATA_DIR)
+    
+with suppress(FileExistsError):
+    mkdir(VISUALIZATION_DATA_DIR)
+
+# Descriptions of the basis function expansions
 BFE_DESCS = ["base", "fixed_acidity_removed", "volatine_acidity_removed", "citric_acid_removed",
              "residual_sugar_removed", "chlorides_removed", "free_sulfur_dioxide_removed",
              "total_sulfur_dioxide_removed", "density_removed", "pH_removed", "suplhates_removed",
