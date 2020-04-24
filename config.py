@@ -1,3 +1,4 @@
+from datetime import datetime
 from logging import Formatter, getLogger, FileHandler, StreamHandler, INFO, DEBUG
 from pathlib import Path
 from sys import stdout
@@ -14,7 +15,8 @@ def make_logger(module_name):
     logger.setLevel(DEBUG)
     formatter = Formatter('%(asctime)s - %(name)s - %(levelname)s: %(message)s')
     
-    file_handler = FileHandler(OUTPUT_DATA_DIR / "search.log", mode="w")
+    file_handler = FileHandler(OUTPUT_DATA_DIR / f'training_{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.log',
+                               mode="w")
     file_handler.setFormatter(formatter)
     file_handler.setLevel(DEBUG)
     
