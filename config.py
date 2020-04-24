@@ -37,7 +37,7 @@ def make_logger(module_name):
     logger.setLevel(DEBUG)
     formatter = Formatter('%(asctime)s - %(name)s - %(levelname)s: %(message)s')
     
-    file_handler = FileHandler(OUTPUT_DATA_DIR / f'training_{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.log',
+    file_handler = FileHandler(OUTPUT_DATA_DIR / f'training.log',
                                mode="w")
     file_handler.setFormatter(formatter)
     file_handler.setLevel(DEBUG)
