@@ -61,6 +61,10 @@ def run_linear_models_help(train_x: pd.DataFrame,
     models.sort(key=lambda a: a[3])
     best_model = models[0]
     logger.debug(f"Found optimal lambda for linear model with BFE = {bfe_desc}: {best_model[0]}")
+
+    train_error = mean_squared_error(train_y, best_model[1].predict(train_x))
+    valid_error = mean_squared_error(valid_y, best_model[1].predict(valid_x))
+    test_error = mean_squared_error(test_y, best_model[1].predict(test_x))
     
     dir_ = OUTPUT_DATA_DIR / "linear" / color / bfe_desc
     with suppress(FileExistsError):
@@ -69,10 +73,6 @@ def run_linear_models_help(train_x: pd.DataFrame,
     logger.info("Writing coefficients to disk...")
     with open(dir_ / "model.p", "wb") as f:
         pickle.dump(best_model[1], f)
-    
-    train_error = mean_squared_error(train_y, best_model[1].predict(train_x))
-    valid_error = mean_squared_error(valid_y, best_model[1].predict(valid_x))
-    test_error = mean_squared_error(test_y, best_model[1].predict(test_x))
     
     logger.info("Writing performance report to disk...")
     log_linear_regression(best_model[2], best_model[0], train_error, valid_error, test_error, dir_)
