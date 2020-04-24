@@ -49,11 +49,11 @@ def run_svm_models_help(train_x: pd.DataFrame,
     :param kernel: a description of the kernel function chosen
     :param bfe_desc: a description of the basis function expansion
     """
-    logger.debug(f"BEGIN: generate SVM classification model with BFE = {bfe_desc}, kernel = {kernel}")
+    logger.info(f"BEGIN: generate SVM classification model with BFE = {bfe_desc}, kernel = {kernel}")
     models = [[lam, SVC(random_state=0, C=(1 / lam if lam != 0 else 0), kernel=kernel, degree=3)]
               for lam in {0.001, 0.01, 0.1, 1, 10}]
     
-    logger.info(f'Training and evaluating {len(models)} model-hyperparameter combos...')
+    logger.debug(f'Training and evaluating {len(models)} model-hyperparameter combos...')
     for model in models:
         model[1].fit(train_x, train_y)
         omega = model[1].coef_ if kernel == "linear" else "N/A"

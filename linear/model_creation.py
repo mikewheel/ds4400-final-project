@@ -45,12 +45,12 @@ def run_linear_models_help(train_x: pd.DataFrame,
     :param bfe_desc: a description of the basis function expansion used
     """
     
-    logger.debug(f"BEGIN: generate linear regression models with BFE = {bfe_desc}")
+    logger.info(f"BEGIN: generate linear regression models with BFE = {bfe_desc}")
     models = [[lam, Ridge(random_state=0, alpha=lam, fit_intercept=False, normalize=False)]
               for lam in [0.01, 0.1, 1, 10]]
     models.append([0, LinearRegression()])
     
-    logger.info(f'Training and evaluating {len(models)} model-hyperparameter combos...')
+    logger.debug(f'Training and evaluating {len(models)} model-hyperparameter combos...')
     for model in models:
         model[1].fit(train_x, train_y)
         theta = model[1].coef_

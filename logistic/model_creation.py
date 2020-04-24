@@ -47,12 +47,12 @@ def run_logistic_models_help(train_x: pd.DataFrame,
     :param test_y: the quality of the wines in the test set
     :param bfe_desc: a description of the basis function expansion
     """
-    logger.debug(f"BEGIN: generate logistic regression models with BFE = {bfe_desc}")
+    logger.info(f"BEGIN: generate logistic regression models with BFE = {bfe_desc}")
     models = [[lam, LogisticRegression(random_state=0, C=(1 / lam if lam != 0 else 0), penalty="l2",
                                        fit_intercept=False, solver="liblinear")]
               for lam in [0.001, 0.01, 0.1, 1, 10]]
     
-    logger.info(f'Training and evaluating {len(models)} model-hyperparameter combos...')
+    logger.debug(f'Training and evaluating {len(models)} model-hyperparameter combos...')
     for model in models:
         model[1].fit(train_x, train_y)
         omega = model[1].coef_
