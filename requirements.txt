@@ -5,3 +5,4 @@ scikit-learn
 bokeh
 numpy
 selenium
+scipy

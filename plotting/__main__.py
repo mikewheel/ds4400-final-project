@@ -3,13 +3,15 @@ Main module for exploratory visualization.
 
 Written by Michael Wheeler and Jay Sherman.
 """
+from contextlib import suppress
+from statistics import mean, stdev
+
 from bokeh.io import export_png
 from bokeh.layouts import row
 from bokeh.plotting import figure
-from contextlib import suppress
 from numpy import histogram
 from pandas import read_csv
-from statistics import mean, stdev
+
 from config import INPUT_DATA_DIR, VISUALIZATION_DATA_DIR
 
 wine_data = {

@@ -1,16 +1,15 @@
 """
-Main module for statistic analyses
+Main module for statistical analysis.
 
 Written by Michael Wheeler and Jay Sherman.
 """
 
-from scipy import stats
-from pandas import read_csv
 from statistics import mean, stdev
-import sys
-print(sys.path)
-from config import INPUT_DATA_DIR
 
+from pandas import read_csv
+from scipy import stats
+
+from config import INPUT_DATA_DIR
 
 wine_data = {
     "red": read_csv(INPUT_DATA_DIR / "wine_quality_red.csv"),
@@ -44,9 +43,8 @@ for feature in wine_features:
                            mean(white_wine_feature), stdev(white_wine_feature)]
 
 t_tests = list(t_test_dict)
-t_tests.sort(key = lambda f: t_test_dict[f])
+t_tests.sort(key=lambda f: t_test_dict[f])
 
 for feature in t_tests:
     print(feature, ":", t_test_dict[feature])
     print(stats_dict[feature], "\n")
-

@@ -4,18 +4,17 @@ The main driver for running linear regression and classification on wine data
 Written by Michael Wheeler and Jay Sherman
 """
 
-from argparse import ArgumentParser
-from pathlib import Path
-from typing import List
-import pandas as pd
-from config import INPUT_DATA_DIR, OUTPUT_DATA_DIR
-from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge
-from sklearn.metrics import mean_squared_error, confusion_matrix
+import os
 import pickle
 import numpy as np
-import os
+from argparse import ArgumentParser
+from typing import List, Tuple
 
+import pandas as pd
+from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge
+from sklearn.metrics import mean_squared_error, confusion_matrix
+
+from config import INPUT_DATA_DIR, OUTPUT_DATA_DIR
 
 
 def basis_expansion(data: pd.DataFrame, powers=None) -> pd.DataFrame:
@@ -54,20 +53,21 @@ def basis_expansion(data: pd.DataFrame, powers=None) -> pd.DataFrame:
         print(powers)
         print(data.shape)
         raise ValueError("Length of maximal powers is not equal to number of features.")
-
+    
     phi = pd.DataFrame()
     
     for index, row in data.iterrows():
         new_row = []
         for i in range(len(row)):
-            new_row += [pow(row[i], power) for power in range(1, powers[i]+1)]
+            new_row += [pow(row[i], power) for power in range(1, powers[i] + 1)]
         new_row.append(1)
         phi = pd.concat([phi, pd.DataFrame([pd.Series(new_row)], index=[str(i)])],
                         ignore_index=True)
     
     return phi
 
-def split_data(data: pd.DataFrame) -> List[pd.DataFrame]:
+
+def split_data(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Separates data into test, training, and validation data sets randomly (deterministic).
 
     Training and validation data sets are each 45% of the original data set, and the
@@ -76,10 +76,10 @@ def split_data(data: pd.DataFrame) -> List[pd.DataFrame]:
     :param data: the data to split into test, train, and validation sets
     :returns: in order, the train, validation, and test data sets
     """
-    test_data = data.sample(frac = 0.1, random_state = 0)
-    nontest_data = data[~(data.isin(test_data))].dropna(how = "all")
-    train_data = nontest_data.sample(frac = 0.5, random_state=0)
-    validation_data = nontest_data[(nontest_data.isin(train_data))].dropna(how = "all")
+    test_data: pd.DataFrame = data.sample(frac=0.1, random_state=0)
+    nontest_data: pd.DataFrame = data[~(data.isin(test_data))].dropna(how="all")
+    train_data: pd.DataFrame = nontest_data.sample(frac=0.5, random_state=0)
+    validation_data: pd.DataFrame = nontest_data[(nontest_data.isin(train_data))].dropna(how="all")
     return train_data, validation_data, test_data
 
 
@@ -104,10 +104,10 @@ def run_linear_models_help(train_x: pd.DataFrame, valid_x: pd.DataFrame, test_x:
     :param color: the color of the wine ("red" or "white")
     :param bfe_desc: a description of the basis function expansion used
     """
-    models = [[lam, Ridge(random_state = 0, alpha = lam, fit_intercept = False, normalize = False)]
-              for lam in [0.01,0.1, 1, 10]]
+    models = [[lam, Ridge(random_state=0, alpha=lam, fit_intercept=False, normalize=False)]
+              for lam in [0.01, 0.1, 1, 10]]
     models.append([0, LinearRegression()])
-
+    
     for model in models:
         model[1].fit(train_x, train_y)
         theta = model[1].coef_
@@ -115,20 +115,31 @@ def run_linear_models_help(train_x: pd.DataFrame, valid_x: pd.DataFrame, test_x:
         error = mean_squared_error(valid_y, model[1].predict(valid_x))
         model.append(error)
 
-    models.sort(key = lambda a: a[3])
-    best_model = models[0]
+  
 
+    models.sort(key = lambda a: a[3])
+
+    best_model = models[0]
+    
     train_error = mean_squared_error(train_y, best_model[1].predict(train_x))
     valid_error = mean_squared_error(valid_y, best_model[1].predict(valid_x))
     test_error = mean_squared_error(test_y, best_model[1].predict(test_x))
-
+    
     dir = OUTPUT_DATA_DIR / "linear" / color / bfe_desc
     try:
         os.mkdir(dir)
     except FileExistsError:
         pass
-
+    
     pickle.dump(best_model, open(dir / "model.p", "wb"))
+
+    
+    with open(dir / "log.txt", "w") as f:
+        f.write(f"theta: {best_model[2]}")
+        f.write(f"training error: {train_error}")
+        f.write(f"validation error: {valid_error}")
+        f.write(f"test error: {test_error}")
+
 
     with open(dir / "log.txt", "w") as f:
         f.write(f"theta: {best_model[2]}\n")
@@ -136,7 +147,9 @@ def run_linear_models_help(train_x: pd.DataFrame, valid_x: pd.DataFrame, test_x:
         f.write(f"training error: {train_error}\n")
         f.write(f"validation error: {valid_error}\n")
         f.write(f"test error: {test_error}\n\n")
+
         models.sort(key=lambda a: a[0], reverse=True)
+        
         for model in models:
             f.write("\n")
             f.write(f"lambda: {model[0]}\n")
@@ -193,14 +206,14 @@ def run_linear_models(rw_train_x_list: List[pd.DataFrame], rw_valid_x_list: List
         pass
 
     bfe_dict = {1: "base", 2: "fixed_acidity_removed", 3: "volatine_acidity_removed", 4: "citric_acid_removed",
-                5: "residual_sugar_removed", 6: "chlorides_removed", 7:"free_sulfur_dioxide_removed",
+                5: "residual_sugar_removed", 6: "chlorides_removed", 7: "free_sulfur_dioxide_removed",
                 8: "total_sulfur_dioxide_removed", 9: "density_removed", 10: "pH_removed", 11: "suplhates_removed",
                 12: "alcohol_removed", 13: "fixed_acidity_squared", 14: "volatine_acidity_squared",
                 15: "citric_acid_squared",
-                16: "residual_sugar_squared", 17: "chlorides_squared", 18:"free_sulfur_dioxide_squared",
+                16: "residual_sugar_squared", 17: "chlorides_squared", 18: "free_sulfur_dioxide_squared",
                 19: "total_sulfur_dioxide_squared", 20: "density_squared", 21: "pH_squared", 22: "suplhates_squared",
                 23: "alcohol_squared"}
-
+    
     for i in range(23):
         run_linear_models_help(rw_train_x_list[i], rw_valid_x_list[i], rw_test_x_list[i],
                                rw_train_y, rw_valid_y, rw_test_y, "red", bfe_dict[i + 1])
@@ -338,13 +351,12 @@ def run_logistic_models(train_x_list: List[pd.DataFrame], valid_x_list: List[pd.
 
 
 if __name__ == "__main__":
-
-
+    
     parser = ArgumentParser()
     parser.add_argument("--model", nargs=1, type=str, metavar="model")
     args = parser.parse_args()
     model = args.model[0]
-
+    
     red_wines = pd.read_csv(INPUT_DATA_DIR / "wine_quality_red.csv")
     white_wines = pd.read_csv(INPUT_DATA_DIR / "wine_quality_white.csv")
 
@@ -354,20 +366,22 @@ if __name__ == "__main__":
                                          for df in [rw_train, rw_valid, rw_test]]
     ww_train_x, ww_valid_x, ww_test_x = [df.iloc[:, range(11)]
                                          for df in [ww_train, ww_valid, ww_test]]
-    rw_train_y, rw_valid_y, rw_test_y = [df.iloc[:, range(11,12)]
+    rw_train_y, rw_valid_y, rw_test_y = [df.iloc[:, range(11, 12)]
                                          for df in [rw_train, rw_valid, rw_test]]
-    ww_train_y, ww_valid_y, ww_test_y = [df.iloc[:, range(11,12)]
+    ww_train_y, ww_valid_y, ww_test_y = [df.iloc[:, range(11, 12)]
                                          for df in [ww_train, ww_valid, ww_test]]
-
-    powers_list = [[1 for i in range(11)] for j in range(23)] #the values for exponents for all basis function expansions
-    #setting 11 of the inner lists to have 0 for a single feature (will remove the feature)
-    for i in range(1,12):
+    
+    # the values for exponents for all basis function expansions
+    powers_list = [[1 for i in range(11)] for j in range(23)]
+    
+    # setting 11 of the inner lists to have 0 for a single feature (will remove the feature)
+    for i in range(1, 12):
         powers_list[i][i - 1] = 0
-    #setting 11 of the inner lists to have 2 for a single feature (x_i and x_i^2 will be present in the bfe)
+    # setting 11 of the inner lists to have 2 for a single feature (x_i and x_i^2 will be present in the bfe)
     for i in range(12, 23):
         powers_list[i][i - 12] = 2
-
-    #generating a list of phi(x) for different basis functions
+    
+    # generating a list of phi(x) for different basis functions
     rw_train_x_list, rw_valid_x_list, rw_test_x_list = [
         [basis_expansion(df, powers)
          for powers in powers_list]
@@ -378,6 +392,7 @@ if __name__ == "__main__":
          for powers in powers_list]
         for df in [ww_train_x, ww_valid_x, ww_test_x]
     ]
+
 
     all_train_x_list = []
     all_valid_x_list = []
@@ -405,6 +420,7 @@ if __name__ == "__main__":
     all_valid_y["white_wine"] = list(np.repeat([1, 0], [4898, 1599], axis=0))
     all_test_y = pd.concat([ww_test_y, rw_test_y], ignore_index=False)
     all_test_y["white_wine"] = list(np.repeat([1, 0], [4898, 1599], axis=0))
+
 
 
     if model == "logistic":
