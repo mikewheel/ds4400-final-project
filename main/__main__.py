@@ -4,24 +4,20 @@ The main driver for running linear regression and classification on wine data
 Written by Michael Wheeler and Jay Sherman
 """
 
-import os
-import pickle
 from argparse import ArgumentParser
-from typing import List, Tuple
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge
-from sklearn.metrics import mean_squared_error, confusion_matrix
-from sklearn.svm import SVC
 
-from config import INPUT_DATA_DIR, OUTPUT_DATA_DIR, BFE_DESCS, make_logger
 from basis_function_expansions.calculate_bfe import basis_expansion
+from config import INPUT_DATA_DIR, make_logger
 from linear.model_creation import run_linear_models
 from logistic.model_creation import run_logistic_models
 from svm.model_creation import run_svm_models
 
 logger = make_logger(__name__)
+
 
 def split_data(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Separates data into test, training, and validation data sets randomly (deterministic).
@@ -37,7 +33,6 @@ def split_data(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataF
     train_data: pd.DataFrame = nontest_data.sample(frac=0.5, random_state=0)
     validation_data: pd.DataFrame = nontest_data[(nontest_data.isin(train_data))].dropna(how="all")
     return train_data, validation_data, test_data
-
 
 
 if __name__ == "__main__":
