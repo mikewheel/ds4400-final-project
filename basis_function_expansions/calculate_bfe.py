@@ -6,11 +6,11 @@ Written by Mike Wheeler and Jay Sherman
 import pandas as pd
 
 from config import make_logger
+
 logger = make_logger(__name__)
 
 
-
-def basis_expansion(data: pd.DataFrame, powers=None) -> pd.DataFrame:
+def expand_basis(data: pd.DataFrame, powers=None) -> pd.DataFrame:
     """
     Performs a basis expansion of arbitrary data features.
 
@@ -39,14 +39,14 @@ def basis_expansion(data: pd.DataFrame, powers=None) -> pd.DataFrame:
     logger.debug(f'BEGIN: calculate basis function expansions with powers {powers}')
     if not powers:
         powers = [1 for i in range(data.shape[1])]
-
+    
     if len(powers) != data.shape[1]:
         logger.debug(powers)
         logger.debyg(data.shape)
         raise ValueError("Length of maximal powers is not equal to number of features.")
-
+    
     phi = pd.DataFrame()
-
+    
     for index, row in data.iterrows():
         new_row = []
         for i in range(len(row)):

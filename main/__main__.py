@@ -10,7 +10,7 @@ from typing import Tuple
 import numpy as np
 import pandas as pd
 
-from basis_function_expansions.calculate_bfe import basis_expansion
+from basis_function_expansions.calculate_bfe import expand_basis
 from config import INPUT_DATA_DIR, make_logger
 from linear.model_creation import run_linear_models
 from logistic.model_creation import run_logistic_models
@@ -70,12 +70,12 @@ if __name__ == "__main__":
         powers_list[i][i - 12] = 2
     # generating a list of phi(x) for different basis functions
     rw_train_x_list, rw_valid_x_list, rw_test_x_list = [
-        [basis_expansion(df, powers)
+        [expand_basis(df, powers)
          for powers in powers_list]
         for df in [rw_train_x, rw_valid_x, rw_test_x]
     ]
     ww_train_x_list, ww_valid_x_list, ww_test_x_list = [
-        [basis_expansion(df, powers)
+        [expand_basis(df, powers)
          for powers in powers_list]
         for df in [ww_train_x, ww_valid_x, ww_test_x]
     ]
