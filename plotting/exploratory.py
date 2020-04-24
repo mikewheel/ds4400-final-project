@@ -47,4 +47,3 @@ for feature in wine_features:
     big_plot = row(*[val for key, val in plots.items()])
     with suppress(KeyboardInterrupt):
         export_png(big_plot, filename=VISUALIZATION_DATA_DIR / f'joint_distribution_{feature}.png')
-        pass
