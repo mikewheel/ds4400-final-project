@@ -38,9 +38,9 @@ def split_data(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataF
 if __name__ == "__main__":
     
     parser = ArgumentParser()
-    parser.add_argument("--model", nargs=1, type=str, metavar="model")
+    parser.add_argument("--model", nargs=1, type=str, metavar="MODEL CHOICE", help="linear, logistic, svm, or all")
     args = parser.parse_args()
-    model = args.model[0]
+    model_choice = args.model[0].lower()
     
     red_wines = pd.read_csv(INPUT_DATA_DIR / "wine_quality_red.csv")
     white_wines = pd.read_csv(INPUT_DATA_DIR / "wine_quality_white.csv")
@@ -94,23 +94,34 @@ if __name__ == "__main__":
         combined_test_x = pd.concat([ww_test_x_list[i], rw_test_x_list[i]], ignore_index=True)
         all_test_x_list.append(combined_test_x)
     
+    # FIXME -- convert these to dataframes?
     all_train_y = np.repeat([1, 0], [ww_train_x_list[0].shape[0], rw_train_x_list[0].shape[0]], axis=0)
     all_valid_y = np.repeat([1, 0], [ww_valid_x_list[0].shape[0], rw_valid_x_list[0].shape[0]], axis=0)
     all_test_y = np.repeat([1, 0], [ww_test_x_list[0].shape[0], rw_test_x_list[0].shape[0]], axis=0)
     
-    if model == "logistic":
-        logger.info(f'BEGIN: start running logistic classifier')
+    if model_choice == "logistic":
+        logger.info(f'BEGIN: logistic classifier')
         run_logistic_models(all_train_x_list, all_valid_x_list, all_test_x_list,
                             all_train_y, all_valid_y, all_test_y)
-    elif model == "linear":
-        logger.info(f'BEGIN: start running linear classifier.')
+    elif model_choice == "linear":
+        logger.info(f'BEGIN: linear regression.')
         run_linear_models(rw_train_x_list, rw_valid_x_list, rw_test_x_list,
                           rw_train_y, rw_valid_y, rw_test_y,
                           ww_train_x_list, ww_valid_x_list, ww_test_x_list,
                           ww_train_y, ww_valid_y, ww_test_y)
-    elif model == "svm":
-        logger.info(f'BEGIN: start running SVM classifier.')
+    elif model_choice == "svm":
+        logger.info(f'BEGIN: SVM classifier.')
+        run_svm_models(all_train_x_list, all_valid_x_list, all_test_x_list,
+                       all_train_y, all_valid_y, all_test_y)
+    elif model_choice == "all":
+        logger.info(f'BEGIN: all models.')
+        run_logistic_models(all_train_x_list, all_valid_x_list, all_test_x_list,
+                            all_train_y, all_valid_y, all_test_y)
+        run_linear_models(rw_train_x_list, rw_valid_x_list, rw_test_x_list,
+                          rw_train_y, rw_valid_y, rw_test_y,
+                          ww_train_x_list, ww_valid_x_list, ww_test_x_list,
+                          ww_train_y, ww_valid_y, ww_test_y)
         run_svm_models(all_train_x_list, all_valid_x_list, all_test_x_list,
                        all_train_y, all_valid_y, all_test_y)
     else:
-        raise ValueError(f'Model type not recognized: "{model}"')
+        raise ValueError(f'Model type not recognized: "{model_choice}"')
