@@ -19,6 +19,7 @@ from config import INPUT_DATA_DIR, OUTPUT_DATA_DIR, BFE_DESCS, make_logger
 from basis_function_expansions.calculate_bfe import basis_expansion
 from linear.model_creation import run_linear_models
 from logistic.model_creation import run_logistic_models
+from svm.model_creation import run_svm_models
 
 logger = make_logger(__name__)
 
@@ -114,6 +115,7 @@ if __name__ == "__main__":
                           ww_train_y, ww_valid_y, ww_test_y)
     elif model == "svm":
         logger.info(f'BEGIN: start running SVM classifier.')
-        model = SVC(kernel="linear", random_state=0)
+        run_svm_models(all_train_x_list, all_valid_x_list, all_test_x_list,
+                       all_train_y, all_valid_y, all_test_y)
     else:
         raise ValueError(f'Model type not recognized: "{model}"')

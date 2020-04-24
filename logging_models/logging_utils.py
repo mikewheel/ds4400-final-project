@@ -6,8 +6,8 @@ Written by Michael Wheeler and Jay Sherman
 from pathlib import Path
 from numpy import ndarray
 
-def log_logistic_regression(omega: float, lam: float, train_cm: ndarray, valid_cm: ndarray, test_cm: ndarray,
-                            dir: Path):
+def log_classification(omega: float, lam: float, train_cm: ndarray, valid_cm: ndarray, test_cm: ndarray,
+                       dir: Path):
     """Logs the information regarding a logistic regression model.
 
     Logs the value of omega and the regularization parameter, and the accuracy, sensitivity, specificity, precision,
