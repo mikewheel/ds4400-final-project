@@ -1,0 +1,22 @@
+theta: [[-0.01884833 -1.17935045 -0.00552921  0.00990618 -1.28831738  0.00426995
+  -0.00396057 -0.5855961   0.80254867  0.29265926  0.        ]]
+lambda: 0
+training error: 0.42994495634506996
+validation error: 0.4299449563450699
+test error: 0.38248281004400997
+
+
+lambda: 10
+validation error: 0.4513694048392071
+
+lambda: 1
+validation error: 0.4377696473561749
+
+lambda: 0.1
+validation error: 0.4305102930310537
+
+lambda: 0.01
+validation error: 0.4299531839860305
+
+lambda: 0
+validation error: 0.4299449563450699
