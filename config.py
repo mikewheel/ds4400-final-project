@@ -9,6 +9,14 @@ INPUT_DATA_DIR = DATA_DIR / "input"
 OUTPUT_DATA_DIR = DATA_DIR / "output"
 VISUALIZATION_DATA_DIR = DATA_DIR / "visualizations"
 
+#descriptions of the basis function expansions
+BFE_DESCS = ["base", "fixed_acidity_removed", "volatine_acidity_removed", "citric_acid_removed",
+             "residual_sugar_removed", "chlorides_removed", "free_sulfur_dioxide_removed",
+             "total_sulfur_dioxide_removed", "density_removed", "pH_removed", "suplhates_removed",
+             "alcohol_removed", "fixed_acidity_squared", "volatine_acidity_squared",
+             "citric_acid_squared", "residual_sugar_squared", "chlorides_squared", "free_sulfur_dioxide_squared",
+             "total_sulfur_dioxide_squared", "density_squared", "pH_squared", "suplhates_squared", "alcohol_squared"]
+
 
 def make_logger(module_name):
     logger = getLogger(module_name)
