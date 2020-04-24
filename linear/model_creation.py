@@ -45,7 +45,7 @@ def run_linear_models_help(train_x: pd.DataFrame,
     :param bfe_desc: a description of the basis function expansion used
     """
     
-    logger.info(f"BEGIN: generate linear model with BFE = {bfe_desc}")
+    logger.debug(f"BEGIN: generate linear regression models with BFE = {bfe_desc}")
     models = [[lam, Ridge(random_state=0, alpha=lam, fit_intercept=False, normalize=False)]
               for lam in [0.01, 0.1, 1, 10]]
     models.append([0, LinearRegression()])
@@ -62,10 +62,11 @@ def run_linear_models_help(train_x: pd.DataFrame,
     best_model = models[0]
     logger.debug(f"Found optimal lambda for linear model with BFE = {bfe_desc}: {best_model[0]}")
     
-    logger.info("Writing coefficients to disk...")
     dir_ = OUTPUT_DATA_DIR / "linear" / color / bfe_desc
     with suppress(FileExistsError):
         os.mkdir(dir_)
+    
+    logger.info("Writing coefficients to disk...")
     with open(dir_ / "model.p", "wb") as f:
         pickle.dump(best_model[1], f)
     
@@ -73,7 +74,7 @@ def run_linear_models_help(train_x: pd.DataFrame,
     valid_error = mean_squared_error(valid_y, best_model[1].predict(valid_x))
     test_error = mean_squared_error(test_y, best_model[1].predict(test_x))
     
-    logger.info("Writing accuracy report to disk...")
+    logger.info("Writing performance report to disk...")
     log_linear_regression(best_model[2], best_model[0], train_error, valid_error, test_error, dir_)
 
 
@@ -118,7 +119,7 @@ def run_linear_models(rw_train_x_bfes: List[pd.DataFrame],
     :param ww_test_y: the quality of the wines in the test set for white wines
     """
     
-    logger.info("Checking for linear model output directories...")
+    logger.info("Checking for linear regression model output directories...")
     linear_output_path = OUTPUT_DATA_DIR / "linear"
     with suppress(FileExistsError):
         os.mkdir(linear_output_path)
@@ -128,9 +129,9 @@ def run_linear_models(rw_train_x_bfes: List[pd.DataFrame],
         os.mkdir(linear_output_path / "white")
     
     for index, bfe_desc in enumerate(BFE_DESCS):
-        logger.info(f'Training linear models with BFE {bfe_desc} on red wine data...')
+        logger.info(f'Training linear regression models with BFE {bfe_desc} on red wine data...')
         run_linear_models_help(rw_train_x_bfes[index], rw_valid_x_list[index], rw_test_x_list[index],
                                rw_train_y, rw_valid_y, rw_test_y, "red", bfe_desc)
-        logger.info(f'Training linear models with BFE {bfe_desc} on white wine data...')
+        logger.info(f'Training linear regression models with BFE {bfe_desc} on white wine data...')
         run_linear_models_help(ww_train_x_list[index], ww_valid_x_list[index], ww_test_x_list[index],
                                ww_train_y, ww_valid_y, ww_test_y, "white", bfe_desc)
