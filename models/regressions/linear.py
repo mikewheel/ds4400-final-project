@@ -13,7 +13,7 @@ from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.metrics import mean_squared_error
 
 from config import OUTPUT_DATA_DIR, BFE_DESCS, make_logger
-from logging_models.logging_utils import log_linear_regression
+from text_reports.logging_utils import log_linear_regression
 
 logger = make_logger(__name__)
 

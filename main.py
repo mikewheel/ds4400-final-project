@@ -1,5 +1,5 @@
 """
-The main driver for running linear regression and classification on wine data
+The controller for running linear regression and classification on wine data.
 
 Written by Michael Wheeler and Jay Sherman
 """
@@ -10,11 +10,11 @@ from typing import Tuple
 import numpy as np
 import pandas as pd
 
-from basis_function_expansions.calculate_bfe import expand_basis
+from basis_functions.expansions import expand_basis
 from config import INPUT_DATA_DIR, make_logger
-from linear.model_creation import run_linear_models
-from logistic.model_creation import run_logistic_models
-from svm.model_creation import run_svm_models
+from models.regressions.linear import run_linear_models
+from models.classifiers.logistic import run_logistic_models
+from models.classifiers.svm import run_svm_models
 
 logger = make_logger(__name__)
 

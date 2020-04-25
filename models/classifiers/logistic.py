@@ -14,7 +14,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 
 from config import OUTPUT_DATA_DIR, BFE_DESCS, make_logger
-from logging_models.logging_utils import log_classification
+from text_reports.logging_utils import log_classification
 
 logger = make_logger(__name__)
 
