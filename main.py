@@ -11,10 +11,10 @@ import pandas as pd
 
 from basis_functions.expansions import expand_basis, generate_exponents
 from config import INPUT_DATA_DIR, make_logger
-from models.classifiers.logistic import LogisticModelFactory, run_logistic_models
-from models.classifiers.svm import SupportVectorModelFactory, run_svm_models
-from models.regressions.linear import LinearRegressionModelFactory, run_linear_models
-from models.utils import split_data
+from models.classifiers.logistic import LogisticModelFactory
+from models.classifiers.svm import SupportVectorModelFactory
+from models.regressions.linear import LinearRegressionModelFactory
+from models.utils import split_data, run_models_all_bfes
 
 logger = make_logger(__name__)
 
@@ -72,22 +72,21 @@ if __name__ == "__main__":
     all_valid_y = np.repeat([1, 0], [ww_valid_x_list[0].shape[0], rw_valid_x_list[0].shape[0]], axis=0)
     all_test_y = np.repeat([1, 0], [ww_test_x_list[0].shape[0], rw_test_x_list[0].shape[0]], axis=0)
     
-    # TODO -- make these work with models.utils and the new model factories
     if model_choice in ("logistic", "all"):
         logger.info(f'BEGIN: logistic classifier.')
-        run_logistic_models(all_train_x_list, all_valid_x_list, all_test_x_list,
+        run_models_all_bfes(LogisticModelFactory, all_train_x_list, all_valid_x_list, all_test_x_list,
                             all_train_y, all_valid_y, all_test_y)
     
     if model_choice in ("svm", "all"):
         logger.info(f'BEGIN: SVM classifier.')
         kernels = ["rbf", "linear", "poly"]
         for kernel in kernels:
-            run_svm_models(all_train_x_list, all_valid_x_list, all_test_x_list,
-                           all_train_y, all_valid_y, all_test_y, kenel=kernel)
-        
+            run_models_all_bfes(SupportVectorModelFactory, all_train_x_list, all_valid_x_list, all_test_x_list,
+                                all_train_y, all_valid_y, all_test_y, kenel=kernel)
+    
     if model_choice in ("linear", "all"):
         logger.info(f'BEGIN: linear regression.')
-        run_linear_models(rw_train_x_list, rw_valid_x_list, rw_test_x_list,
-                          rw_train_y, rw_valid_y, rw_test_y, color="red")
-        run_linear_models(ww_train_x_list, ww_valid_x_list, ww_test_x_list,
-                          ww_train_y, ww_valid_y, ww_test_y, color="white")
+        run_models_all_bfes(LinearRegressionModelFactory, rw_train_x_list, rw_valid_x_list, rw_test_x_list,
+                            rw_train_y, rw_valid_y, rw_test_y, color="red")
+        run_models_all_bfes(LinearRegressionModelFactory, ww_train_x_list, ww_valid_x_list, ww_test_x_list,
+                            ww_train_y, ww_valid_y, ww_test_y, color="white")

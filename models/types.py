@@ -6,10 +6,9 @@ from abc import ABC, abstractmethod
 
 class ModelFactory(ABC):
     @abstractmethod
-    def ensure_output_dirs_exist(self):
+    def ensure_output_dirs_exist(self) -> None:
         pass
     
     @abstractmethod
     def generate_model_instances(self):
         pass
-
