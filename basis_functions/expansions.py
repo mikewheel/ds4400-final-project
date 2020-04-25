@@ -10,6 +10,18 @@ from config import make_logger
 logger = make_logger(__name__)
 
 
+def generate_exponents():
+    """Produces the values for exponents for all basis function expansions."""
+    powers_list = [[1 for i in range(11)] for j in range(23)]
+    # Setting 11 of the inner lists to have 0 for a single feature (will remove the feature)
+    for i in range(1, 12):
+        powers_list[i][i - 1] = 0
+    # Setting 11 of the inner lists to have 2 for a single feature (x_i and x_i^2 will be present in the bfe)
+    for i in range(12, 23):
+        powers_list[i][i - 12] = 2
+    return powers_list
+
+
 def expand_basis(data: pd.DataFrame, powers=None) -> pd.DataFrame:
     """
     Performs a basis expansion of arbitrary data features.
