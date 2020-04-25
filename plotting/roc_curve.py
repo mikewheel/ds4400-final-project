@@ -27,8 +27,8 @@ def plot_roc_auc(model, title, x_test, y_test, output_dir) -> None:
         roc_auc[i] = auc(fpr[i], tpr[i])
 
     p = figure(title=f'ROC for {title}', plot_width=800, plot_height=800, x_range=(0, 1.05), y_range=(0, 1.05))
-    p.xlabel('False Positive Rate')
-    p.ylabel('True Positive Rate')
+    p.xaxis.axis_label = 'False Positive Rate'
+    p.yaxis.axis_label = 'True Positive Rate'
     
     p.line([0, 1], [0, 1], line_width=1, line_color="blue")
     p.line(fpr[0], tpr[0], line_width=2, line_color="orange", legend_label=f'white wine: area = {round(roc_auc[0], 2)}')
