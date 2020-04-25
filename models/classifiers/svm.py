@@ -19,6 +19,27 @@ from text_reports.utils import log_classification
 logger = make_logger(__name__)
 
 
+class SupportVectorModel:
+    """
+    TODO -- write me
+    """
+    output_root = OUTPUT_DATA_DIR / "svm"
+    
+    def __init__(self):
+        self.ensure_output_dirs_exist()
+        
+    def ensure_output_dirs_exist(self):
+        logger.debug("Checking for SVM model output directories...")
+        with suppress(FileExistsError):
+            os.mkdir(self.__class__.output_root)
+        with suppress(FileExistsError):
+            os.mkdir(self.__class__.output_root / "rbf")
+        with suppress(FileExistsError):
+            os.mkdir(self.__class__.output_root / "linear")
+        with suppress(FileExistsError):
+            os.mkdir(self.__class__.output_root / "poly")
+        
+
 def run_svm_models_help(train_x: pd.DataFrame,
                         valid_x: pd.DataFrame,
                         test_x: pd.DataFrame,
@@ -110,20 +131,6 @@ def run_svm_models(train_x_list: List[pd.DataFrame],
     :param valid_y: the quality of the wines in the validation set
     :param test_y: the quality of the wines in the test set
     """
-    
-    logger.info("Checking for SVM model output directories...")
-    dir_ = OUTPUT_DATA_DIR / "svm"
-    with suppress(FileExistsError):
-        os.mkdir(dir_)
-    
-    with suppress(FileExistsError):
-        os.mkdir(dir_ / "rbf")
-    
-    with suppress(FileExistsError):
-        os.mkdir(dir_ / "linear")
-    
-    with suppress(FileExistsError):
-        os.mkdir(dir_ / "poly")
     
     for index, bfe_desc in enumerate(BFE_DESCS):
         run_svm_models_help(train_x_list[index], valid_x_list[index], test_x_list[index],

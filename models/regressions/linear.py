@@ -18,6 +18,25 @@ from text_reports.utils import log_linear_regression
 logger = make_logger(__name__)
 
 
+class LinearRegressionModel:
+    """
+    TODO -- write me
+    """
+    output_root = OUTPUT_DATA_DIR / "linear"
+    
+    def __init__(self):
+        self.ensure_output_dirs_exist()
+        
+    def ensure_output_dirs_exist(self):
+        logger.debug("Checking for linear regression model output directories...")
+        with suppress(FileExistsError):
+            os.mkdir(self.__class__.output_root)
+        with suppress(FileExistsError):
+            os.mkdir(self.__class__.output_root / "red")
+        with suppress(FileExistsError):
+            os.mkdir(self.__class__.output_root / "white")
+
+
 def run_linear_models_help(train_x: pd.DataFrame,
                            valid_x: pd.DataFrame,
                            test_x: pd.DataFrame,
@@ -118,15 +137,6 @@ def run_linear_models(rw_train_x_bfes: List[pd.DataFrame],
     :param ww_valid_y: the quality of the wines in the validation set for white wines
     :param ww_test_y: the quality of the wines in the test set for white wines
     """
-    
-    logger.info("Checking for linear regression model output directories...")
-    linear_output_path = OUTPUT_DATA_DIR / "linear"
-    with suppress(FileExistsError):
-        os.mkdir(linear_output_path)
-    with suppress(FileExistsError):
-        os.mkdir(linear_output_path / "red")
-    with suppress(FileExistsError):
-        os.mkdir(linear_output_path / "white")
     
     for index, bfe_desc in enumerate(BFE_DESCS):
         logger.info(f'Training linear regression models with BFE {bfe_desc} on red wine data...')

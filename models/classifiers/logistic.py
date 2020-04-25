@@ -19,6 +19,21 @@ from text_reports.utils import log_classification
 logger = make_logger(__name__)
 
 
+class LogisticModel:
+    """
+    TODO -- write me
+    """
+    output_root = OUTPUT_DATA_DIR / "logistic"
+    
+    def __init__(self):
+        self.ensure_output_dirs_exist()
+        
+    def ensure_output_dirs_exist(self):
+        logger.debug("Checking for logistic regression model output directories...")
+        with suppress(FileExistsError):
+            os.mkdir(self.__class__.output_root)
+        
+
 def run_logistic_models_help(train_x: pd.DataFrame,
                              valid_x: pd.DataFrame,
                              test_x: pd.DataFrame,
@@ -109,11 +124,6 @@ def run_logistic_models(train_x_list: List[pd.DataFrame],
     :param valid_y: the quality of the wines in the validation set
     :param test_y: the quality of the wines in the test set
     """
-    
-    logger.info("Checking for logistic regression model output directories")
-    dir_ = OUTPUT_DATA_DIR / "logistic"
-    with suppress(FileExistsError):
-        os.mkdir(dir_)
     
     for index, bfe_desc in enumerate(BFE_DESCS):
         logger.info(f'Training logistic regression models with BFE {bfe_desc}...')

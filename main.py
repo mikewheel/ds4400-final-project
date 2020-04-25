@@ -27,14 +27,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
     model_choice = args.model[0].lower()
     
+    logger.info('Reading in red and white wine datasets from disk...')
     red_wines = pd.read_csv(INPUT_DATA_DIR / "wine_quality_red.csv")
     white_wines = pd.read_csv(INPUT_DATA_DIR / "wine_quality_white.csv")
     
-    logger.info(f'BEGIN: split data into training, validation, and test sets')
+    logger.info('Splitting data into training, validation, and test sets.')
+    # TODO -- rename or group into a dict
     rw_train, rw_valid, rw_test = split_data(red_wines)
     ww_train, ww_valid, ww_test = split_data(white_wines)
     
-    logger.info(f'BEGIN: separate input data from output data')
+    logger.info('Separating explanatory and response variables.')
     rw_train_x, rw_valid_x, rw_test_x = [df.iloc[:, range(11)]
                                          for df in [rw_train, rw_valid, rw_test]]
     ww_train_x, ww_valid_x, ww_test_x = [df.iloc[:, range(11)]
@@ -45,6 +47,7 @@ if __name__ == "__main__":
                                          for df in [ww_train, ww_valid, ww_test]]
     
     logger.info(f'BEGIN: calculate basis function expansions')
+    # TODO -- pull this into the basis function package
     # the values for exponents for all basis function expansions
     powers_list = [[1 for i in range(11)] for j in range(23)]
     # setting 11 of the inner lists to have 0 for a single feature (will remove the feature)
@@ -79,11 +82,12 @@ if __name__ == "__main__":
         combined_test_x = pd.concat([ww_test_x_list[i], rw_test_x_list[i]], ignore_index=True)
         all_test_x_list.append(combined_test_x)
     
-    # FIXME -- convert these to dataframes?
+    # FIXME -- convert these to dataframes so the type matches below
     all_train_y = np.repeat([1, 0], [ww_train_x_list[0].shape[0], rw_train_x_list[0].shape[0]], axis=0)
     all_valid_y = np.repeat([1, 0], [ww_valid_x_list[0].shape[0], rw_valid_x_list[0].shape[0]], axis=0)
     all_test_y = np.repeat([1, 0], [ww_test_x_list[0].shape[0], rw_test_x_list[0].shape[0]], axis=0)
     
+    # TODO -- make these work with models.utils and the new model classes
     if model_choice == "logistic":
         logger.info(f'BEGIN: logistic classifier')
         run_logistic_models(all_train_x_list, all_valid_x_list, all_test_x_list,
@@ -109,4 +113,4 @@ if __name__ == "__main__":
         run_svm_models(all_train_x_list, all_valid_x_list, all_test_x_list,
                        all_train_y, all_valid_y, all_test_y)
     else:
-        raise ValueError(f'Model type not recognized: "{model_choice}"')
+        raise ValueError(f'Model type not recognized: "{model_choice}".')

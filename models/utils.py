@@ -27,3 +27,24 @@ def split_data(data: DataFrame) -> Tuple[DataFrame, DataFrame, DataFrame]:
     train_data: DataFrame = nontest_data.sample(frac=0.5, random_state=0)
     validation_data: DataFrame = nontest_data[(nontest_data.isin(train_data))].dropna(how="all")
     return train_data, validation_data, test_data
+
+
+def run_models(train_x: DataFrame,
+               valid_x: DataFrame,
+               test_x: DataFrame,
+               train_y: DataFrame,
+               valid_y: DataFrame,
+               test_y: DataFrame,
+               **kwargs):
+    """
+    
+    :param train_x:
+    :param valid_x:
+    :param test_x:
+    :param train_y:
+    :param valid_y:
+    :param test_y:
+    :param kwargs:
+    :return:
+    """
+    pass
