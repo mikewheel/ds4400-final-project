@@ -5,16 +5,16 @@ Written by Michael Wheeler and Jay Sherman
 """
 import os
 from contextlib import suppress
-from typing import List
 
-import pandas as pd
+from sklearn.linear_model import LinearRegression, Ridge
 
-from config import OUTPUT_DATA_DIR, BFE_DESCS, make_logger
+from config import OUTPUT_DATA_DIR, make_logger
+from models.abc import ModelFactory
 
 logger = make_logger(__name__)
 
 
-class LinearRegressionModelFactory:
+class LinearRegressionModelFactory(ModelFactory):
     """
     Factory for linear regressions to predict the quality of wine based on physical and chemical properties.
     Finds optimal theta using the training set, then finds optimal value of the regularization parameter out of
@@ -34,3 +34,9 @@ class LinearRegressionModelFactory:
             os.mkdir(self.__class__.output_root / "red")
         with suppress(FileExistsError):
             os.mkdir(self.__class__.output_root / "white")
+    
+    def generate_model_instances(self):
+        output = [[lam, Ridge(random_state=0, alpha=lam, fit_intercept=False, normalize=False)]
+                  for lam in [0.01, 0.1, 1, 10]]
+        output.append([0, LinearRegression()])
+        return output

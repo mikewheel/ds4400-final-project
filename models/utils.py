@@ -11,6 +11,7 @@ from typing import Tuple
 from pandas import DataFrame
 
 from config import BFE_DESCS, make_logger
+from models.abc import ModelFactory
 
 logger = make_logger(__name__)
 
@@ -31,7 +32,8 @@ def split_data(data: DataFrame) -> Tuple[DataFrame, DataFrame, DataFrame]:
     return train_data, validation_data, test_data
 
 
-def run_models_all_bfes(train_x: DataFrame,  # FIXME include model factory class
+def run_models_all_bfes(model_factory: ModelFactory,
+                        train_x: DataFrame,
                         valid_x: DataFrame,
                         test_x: DataFrame,
                         train_y: DataFrame,
@@ -40,10 +42,11 @@ def run_models_all_bfes(train_x: DataFrame,  # FIXME include model factory class
                         **kwargs):
     for index, bfe_desc in enumerate(BFE_DESCS):
         logger.info(f'Begin training: Model {None}, BFE {bfe_desc}, {kwargs if kwargs else ""}...')
-        run_models(train_x, valid_x, test_x, train_y, valid_y, test_y, bfe_desc, **kwargs)
+        run_models(model_factory, train_x, valid_x, test_x, train_y, valid_y, test_y, bfe_desc, **kwargs)
 
 
-def run_models(train_x: DataFrame,  # FIXME include model factory class
+def run_models(model_factory: ModelFactory,
+               train_x: DataFrame,  # FIXME include model factory class
                valid_x: DataFrame,
                test_x: DataFrame,
                train_y: DataFrame,
@@ -53,6 +56,7 @@ def run_models(train_x: DataFrame,  # FIXME include model factory class
                **kwargs):
     """
     TODO write me
+    :param model_factory: Utility class for generating the blank models to train.
     :param train_x: Expanded input features for the training set.
     :param valid_x: Expanded input features for the validation set.
     :param test_x: Expanded input features for the test set.
@@ -66,24 +70,7 @@ def run_models(train_x: DataFrame,  # FIXME include model factory class
     color = None  # FIXME linear kwarg
     kernel = None  # FIXME SVM kwarg
     
-    models = []
-    
-    """ Linear
-    models = [[lam, Ridge(random_state=0, alpha=lam, fit_intercept=False, normalize=False)]
-              for lam in [0.01, 0.1, 1, 10]]
-    models.append([0, LinearRegression()])
-    """
-    
-    """ Logistic
-    models = [[lam, LogisticRegression(random_state=0, C=(1 / lam if lam != 0 else 0), penalty="l2",
-                                       fit_intercept=False, solver="liblinear")]
-              for lam in [0.001, 0.01, 0.1, 1, 10]]
-    """
-    
-    """ SVM
-    models = [[lam, SVC(random_state=0, C=(1 / lam if lam != 0 else 0), kernel=kernel, degree=3)]
-              for lam in {0.001, 0.01, 0.1, 1, 10}]
-    """
+    models = model_factory.generate_model_instances()
     
     logger.debug(f'Training and evaluating {len(models)} model-hyperparameter combos...')
     for index, model in enumerate(models):

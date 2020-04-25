@@ -6,16 +6,16 @@ Written by Michael Wheeler and Jay Sherman
 
 import os
 from contextlib import suppress
-from typing import List
 
-import pandas as pd
+from sklearn.linear_model import LogisticRegression
 
-from config import OUTPUT_DATA_DIR, BFE_DESCS, make_logger
+from config import OUTPUT_DATA_DIR, make_logger
+from models.abc import ModelFactory
 
 logger = make_logger(__name__)
 
 
-class LogisticModelFactory:
+class LogisticModelFactory(ModelFactory):
     """
     Factory for logistic regressions to classify the wine as white or red. White wine is the positive class,
     red wine is negative.
@@ -34,3 +34,8 @@ class LogisticModelFactory:
         logger.debug("Checking for logistic regression model output directories...")
         with suppress(FileExistsError):
             os.mkdir(self.__class__.output_root)
+    
+    def generate_model_instances(self):
+        return [[lam, LogisticRegression(random_state=0, C=(1 / lam if lam != 0 else 0), penalty="l2",
+                                         fit_intercept=False, solver="liblinear")]
+                for lam in [0.001, 0.01, 0.1, 1, 10]]
