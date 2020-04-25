@@ -59,13 +59,13 @@ class SupportVectorModelFactory(ModelFactory):
     @staticmethod
     def get_coeffs(model):
         if model.kernel == "linear":
-            return {"ω": model[1].coef_}
+            return {"ω": model.coef_}
         else:
             return dict()
     
     @staticmethod
     def get_error(model, X, y):
-        predictions = model[1].predict(X)
+        predictions = model.predict(X)
         return sum([1 for _ in range(len(y)) if y[_] != predictions[_]]) / len(predictions)
     
     def best_model(self):

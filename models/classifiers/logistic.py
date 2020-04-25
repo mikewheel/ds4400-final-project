@@ -54,7 +54,7 @@ class LogisticModelFactory(ModelFactory):
     
     @staticmethod
     def get_coeffs(model):
-        return {"ω": model[1].coef_}
+        return {"ω": model.coef_}
     
     @staticmethod
     def get_error(model, X, y):
