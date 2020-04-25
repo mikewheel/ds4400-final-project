@@ -13,6 +13,7 @@ from sklearn.metrics import confusion_matrix
 
 from config import OUTPUT_DATA_DIR, make_logger
 from models.types import ModelFactory
+from plotting.roc_curve import plot_roc_auc
 from text_reports.utils import log_classification
 
 logger = make_logger(__name__)
@@ -35,6 +36,10 @@ class LogisticModelFactory(ModelFactory):
         self.bfe_desc: str = bfe_desc
         self.ensure_output_dirs_exist()
         self.models = self.generate_model_instances()
+        
+    def title(self):
+        lambda_, best_model = self.best_model()
+        return f'Logistic {self.bfe_desc} λ={lambda_}'
     
     def ensure_output_dirs_exist(self) -> None:
         logger.debug("Checking for logistic regression model output directories...")
@@ -87,3 +92,6 @@ class LogisticModelFactory(ModelFactory):
         
         logger.info("Writing performance report to disk...")
         log_classification(omega, lambda_, train_cm, valid_cm, test_cm, target_output_dir)
+
+        logger.info("Producing ROC plots...")
+        plot_roc_auc(best_model, self.title(), test_x, test_y, target_output_dir)
