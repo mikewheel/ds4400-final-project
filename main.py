@@ -19,13 +19,12 @@ from models.utils import split_data
 logger = make_logger(__name__)
 
 if __name__ == "__main__":
-    
     parser = ArgumentParser(description="DS4400 Final Project Spring 2020, by Michael Wheeler and Jay Sherman. "
                                         "Classifiers and regressions on wine data.")
-    parser.add_argument("--model", nargs=1, type=str, metavar="MODEL_CHOICE",
-                        help='"linear", "logistic", "svm", or "all"')
+    parser.add_argument("--model", nargs=1, choices=["linear", "logistic", "svm", "all"],
+                        type=str.lower, metavar="MODEL_CHOICE", help='"linear", "logistic", "svm", or "all"')
     args = parser.parse_args()
-    model_choice = args.model[0].lower()
+    model_choice = args.model
     
     logger.info('Reading in red and white wine datasets from disk...')
     red_wines = pd.read_csv(INPUT_DATA_DIR / "wine_quality_red.csv")
