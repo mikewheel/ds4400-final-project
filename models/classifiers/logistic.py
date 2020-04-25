@@ -19,9 +19,15 @@ from text_reports.utils import log_classification
 logger = make_logger(__name__)
 
 
-class LogisticModel:
+class LogisticModelFactory:
     """
-    TODO -- write me
+    Factory for logistic regressions to classify the wine as white or red. White wine is the positive class,
+    red wine is negative.
+    
+    Finds optimal omega using the training set, then finds optimal value of the regularization parameter out of
+    `{0.001, 0.01, 0.1, 1, 10}` using the validation set. Saves coefficients to pickle files under the class's
+    `output_root` directory. Produces text reports to record regularization parameter, omega, confusion matrices, and
+    derived metrics (e.g. precision, recall).
     """
     output_root = OUTPUT_DATA_DIR / "logistic"
     
@@ -41,19 +47,8 @@ def run_logistic_models_help(train_x: pd.DataFrame,
                              valid_y: pd.DataFrame,
                              test_y: pd.DataFrame,
                              bfe_desc: str):
-    """Run logistic regression to classify the wine as white or red.
-
-    The optimal value of omega is found using the training data,
-    then the optimal value of the regularization parameter is found by seeing which of {0.001,0.01,0.1,1,10} yields
-    the lowest validation error (as determine by the percent of true positives and true negatives).
-    Saves the model to a pickle file in the appropriate location inside the output/logistic
-    directory based on the basis function expansion, and saves a text file to the same directory
-    describing the confusion matrices and relevant computations (like power and recall) for the training, validation,
-    and test data sets, the regularization parameter value, which regularization parameter was used, and
-    the value of omega, the training error.
-
-    White wine is considered "positive", and red wine is considered "negative".
-
+    """
+    FIXME
     :param train_x: the input features for the training set with basis function expansions applied
     :param valid_x: the input features for the validation set with basis function expansions applied
     :param test_x: the input features for the test set with basis function expansions applied
@@ -106,17 +101,9 @@ def run_logistic_models(train_x_list: List[pd.DataFrame],
                         train_y: pd.DataFrame,
                         valid_y: pd.DataFrame,
                         test_y: pd.DataFrame):
-    """Run logistic regression to classify the wine as white or red.
-
-    The optimal value of omega is found using the training data,
-    then the optimal value of the regularization parameter is found by seeing which of {0,0.01,0.1,1,10} yields
-    the lowest validation error (as determine by the percent of true positives and true negatives).
-     Saves the model to a pickle file in the appropriate location inside the output/logistic
-    directory based on the basis function expansion, and saves a text file to the same directory
-    describing the confusion matrices and relevant computations (like power and recall) for the training, validation,
-    and test data sets, the regularization parameter value, which regularization parameter was used, and
-    the value of omega, the training error..
-
+    """
+    Run logistic regression to classify the wine as white or red.
+    
     :param train_x_list: a list of the input features for the training set with basis function expansions applied
     :param valid_x_list: a list of the input features for the validation set with basis function expansions applied
     :param test_x_list: a list of the input features for the test set with basis function expansions applied

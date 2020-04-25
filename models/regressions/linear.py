@@ -18,9 +18,12 @@ from text_reports.utils import log_linear_regression
 logger = make_logger(__name__)
 
 
-class LinearRegressionModel:
+class LinearRegressionModelFactory:
     """
-    TODO -- write me
+    Factory for linear regressions to predict the quality of wine based on physical and chemical properties.
+    Finds optimal theta using the training set, then finds optimal value of the regularization parameter out of
+    `{0, 0.01, 0.1, 1, 10}` using the validation set. Saves coefficients to pickle files under the class's
+    `output_root` directory. Produces text reports to record regularization parameter, theta, and loss.
     """
     output_root = OUTPUT_DATA_DIR / "linear"
     
@@ -45,15 +48,8 @@ def run_linear_models_help(train_x: pd.DataFrame,
                            test_y: pd.DataFrame,
                            color: str,
                            bfe_desc: str):
-    """Run linear regression to predict the quality of wine based on physicochemical properties.
-
-    The optimal value of theta is found using the training data, then the optimal value of the regularization
-    parameter is found by seeing which of {0,0.01,0.1,1,10} yields the lowest validation error. Saves the model to a
-    pickle file in the appropriate location inside the output/linear
-    directory based on the values of color and bfe_desc, and saves a text file to the same directory
-    describing the validation error for each regularization parameter value, which regularization parameter was used,
-    the value of theta, the training error, and the test error.
-
+    """
+    Helper... FIXME
     :param train_x: the input data for the model for the training set
     :param valid_x: the input data for the model for the validation set
     :param test_x: the input data for the model for the test set
@@ -109,14 +105,8 @@ def run_linear_models(rw_train_x_bfes: List[pd.DataFrame],
                       ww_train_y: pd.DataFrame,
                       ww_valid_y: pd.DataFrame,
                       ww_test_y: pd.DataFrame):
-    """Run linear regression to predict the quality of red and white wine.
-
-    Runs separate models for red and white wine. The optimal value of theta is found using the training data,
-    then the optimal value of the regularization parameter is found by seeing which of {0,0.01,0.1,1,10} yields
-    the lowest validation error (using mean squared error). Saves the model to a pickle file in the appropriate
-    location inside the output/linear directory based on the wine color and the basis function expansion, and saves a
-    text file to the same directory describing the validation error for each regularization parameter value, which
-    regularization parameter was used, the value of theta, the training error, and the test error.
+    """
+    Run linear regression to predict the quality of red and white wine.
 
     :param rw_train_x_bfes: a list of the input features for the training set with basis function expansions applied
                             for red wines
