@@ -71,7 +71,7 @@ def run_logistic_models_help(train_x: pd.DataFrame,
         error = len([i for i in range(len(valid_y)) if valid_y[i] != predictions[i]]) / len(predictions)  # FIXME
         model.append(error)
     
-    models.sort(key=lambda a: a[3], reverse=False)
+    models.sort(key=lambda a: a[3])
     best_model = models[0]
     logger.debug(f"Found optimal lambda for logistic model with BFE = {bfe_desc}: {best_model[0]}")
     
@@ -83,16 +83,16 @@ def run_logistic_models_help(train_x: pd.DataFrame,
     valid_cm = confusion_matrix(valid_y, pred_valid)
     test_cm = confusion_matrix(test_y, pred_test)
     
-    dir_ = OUTPUT_DATA_DIR / "logistic" / bfe_desc
+    target_output_dir = OUTPUT_DATA_DIR / "logistic" / bfe_desc
     with suppress(FileExistsError):
-        os.mkdir(dir_)
+        os.mkdir(target_output_dir)
     
     logger.info("Writing coefficients to disk...")
-    with open(dir_ / "model.p", "wb") as f:
+    with open(target_output_dir / "model.p", "wb") as f:
         pickle.dump(best_model, f)
     
     logger.info("Writing performance report to disk...")
-    log_classification(best_model[2], best_model[0], train_cm, valid_cm, test_cm, dir_)
+    log_classification(best_model[2], best_model[0], train_cm, valid_cm, test_cm, target_output_dir)
 
 
 def run_logistic_models(train_x_list: List[pd.DataFrame],

@@ -3,7 +3,9 @@ Functions common to the execution of all models in the project.
 
 Written by Michael Wheeler and Jay Sherman.
 """
-
+from contextlib import suppress
+from os import mkdir
+from pickle import dump
 from typing import Tuple
 
 from pandas import DataFrame
@@ -35,16 +37,113 @@ def run_models(train_x: DataFrame,
                train_y: DataFrame,
                valid_y: DataFrame,
                test_y: DataFrame,
+               bfe_desc: str,
                **kwargs):
     """
-    
-    :param train_x:
-    :param valid_x:
-    :param test_x:
-    :param train_y:
-    :param valid_y:
-    :param test_y:
-    :param kwargs:
-    :return:
+    TODO write me
+    :param train_x: Expanded input features for the training set.
+    :param valid_x: Expanded input features for the validation set.
+    :param test_x: Expanded input features for the test set.
+    :param train_y: Response vector for the training set
+    :param valid_y: Response vector for the validation set
+    :param test_y: Response vector for the test set
+    :param bfe_desc: A description of the basis function expansion
+    :param kwargs: anything else that's model-type-specific
+    :return: The best fitting model on that basis function expansion.
     """
-    pass
+    color = None  # FIXME linear kwarg
+    kernel = None  # FIXME SVM kwarg
+    
+    models = []
+    
+    """ Linear
+    models = [[lam, Ridge(random_state=0, alpha=lam, fit_intercept=False, normalize=False)]
+              for lam in [0.01, 0.1, 1, 10]]
+    models.append([0, LinearRegression()])
+    """
+    
+    """ Logistic
+    models = [[lam, LogisticRegression(random_state=0, C=(1 / lam if lam != 0 else 0), penalty="l2",
+                                       fit_intercept=False, solver="liblinear")]
+              for lam in [0.001, 0.01, 0.1, 1, 10]]
+    """
+    
+    """ SVM
+    models = [[lam, SVC(random_state=0, C=(1 / lam if lam != 0 else 0), kernel=kernel, degree=3)]
+              for lam in {0.001, 0.01, 0.1, 1, 10}]
+    """
+    
+    logger.debug(f'Training and evaluating {len(models)} model-hyperparameter combos...')
+    for index, model in enumerate(models):
+        model[1].fit(train_x, train_y)
+        theta = None
+        omega = None
+        # Linear theta = model[1].coef_
+        # Logistic omega = model[1].coef_
+        # SVM omega = model[1].coef_ if kernel == "linear" else "N/A"
+        error = None
+        # Linear
+        # error = mean_squared_error(valid_y, model[1].predict(valid_x))
+        # Logistic
+        # predictions = model[1].predict(valid_x)
+        # error = len([i for i in range(len(valid_y)) if valid_y[i] != predictions[i]]) / len(predictions)  # FIXME
+        # SVM
+        # predictions = model[1].predict(valid_x)
+        # error = len([i for i in range(len(valid_y)) if valid_y[i] != predictions[i]]) / len(predictions)
+        
+        models[index].append(theta)
+        models[index].append(error)
+
+    models.sort(key=lambda a: a[3])  # TODO -- check reverse between logistic and SVM
+    best_model = models[0]
+    logger.debug(f"Found optimal lambda for model with BFE = {bfe_desc}: {best_model[0]}")
+    
+    """ Linear
+    train_error = mean_squared_error(train_y, best_model[1].predict(train_x))
+    valid_error = mean_squared_error(valid_y, best_model[1].predict(valid_x))
+    test_error = mean_squared_error(test_y, best_model[1].predict(test_x))
+    """
+    
+    """ Logistic
+    pred_train = best_model[1].predict(train_x)
+    pred_valid = best_model[1].predict(valid_x)
+    pred_test = best_model[1].predict(test_x)
+    
+    train_cm = confusion_matrix(train_y, pred_train)
+    valid_cm = confusion_matrix(valid_y, pred_valid)
+    test_cm = confusion_matrix(test_y, pred_test)
+    """
+    
+    """ SVM
+    pred_train = best_model[1].predict(train_x)
+    pred_valid = best_model[1].predict(valid_x)
+    pred_test = best_model[1].predict(test_x)
+    
+    train_cm = confusion_matrix(train_y, pred_train)
+    valid_cm = confusion_matrix(valid_y, pred_valid)
+    test_cm = confusion_matrix(test_y, pred_test)
+    """
+    
+    target_output_dir = None
+    # Linear: target_output_dir = output_root / color / bfe_desc
+    # Logistic: target_output_dir = output_root / bfe_desc
+    # SVM: target_output_dir = output_root / kernel / bfe_desc
+    with suppress(FileExistsError):
+        mkdir(target_output_dir)
+
+    logger.info("Writing coefficients to disk...")
+    with open(target_output_dir / "model.p", "wb") as f:
+        # Linear: dump(best_model[1], f)
+        # Logistic: dump(best_model, f)
+        # SVM: pickle.dump(best_model, f)
+        dump(None, f)
+
+    logger.info("Writing performance report to disk...")
+    # Linear
+    # log_linear_regression(best_model[2], best_model[0], train_error, valid_error, test_error, target_output_dir)
+    # Logistic
+    # log_classification(best_model[2], best_model[0], train_cm, valid_cm, test_cm, target_output_dir)
+    # SVM
+    # log_classification(best_model[2], best_model[0], train_cm, valid_cm, test_cm, target_output_dir)
+    
+    return best_model

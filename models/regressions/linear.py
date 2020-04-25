@@ -69,7 +69,7 @@ def run_linear_models_help(train_x: pd.DataFrame,
     for model in models:
         model[1].fit(train_x, train_y)
         theta = model[1].coef_
-        model.append(theta)  # FIXME -- modification of iterated value!
+        model.append(theta)
         error = mean_squared_error(valid_y, model[1].predict(valid_x))
         model.append(error)
     
