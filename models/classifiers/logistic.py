@@ -58,7 +58,7 @@ class LogisticModelFactory(ModelFactory):
     
     def best_model(self):
         best_model_key = min(self.models, key=lambda entry: entry["error"])
-        return best_model_key, self.models[best_model_key]
+        return best_model_key, self.models[best_model_key]["model"]
     
     def target_output_dir(self):
         if not self.bfe_desc:

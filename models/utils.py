@@ -51,7 +51,8 @@ def run_models_all_bfes(model_factory_class, train_x, valid_x, test_x, train_y, 
 
 
 def run_models_one_bfe(model_factory, train_x, valid_x, test_x, train_y, valid_y, test_y):
-    for lambda_, model in model_factory.models.items():
+    for lambda_, model_dict in model_factory.models.items():
+        model = model_dict["model"]
         model.fit(train_x, train_y)
         model_factory.models[lambda_]["coeffs"] = model_factory.get_coeffs(model)
         model_factory.models[lambda_]["error"] = model_factory.get_error(model, valid_x, valid_y)
