@@ -5,35 +5,18 @@ Written by Michael Wheeler and Jay Sherman
 """
 
 from argparse import ArgumentParser
-from typing import Tuple
 
 import numpy as np
 import pandas as pd
 
 from basis_functions.expansions import expand_basis
 from config import INPUT_DATA_DIR, make_logger
-from models.regressions.linear import run_linear_models
 from models.classifiers.logistic import run_logistic_models
 from models.classifiers.svm import run_svm_models
+from models.regressions.linear import run_linear_models
+from models.utils import split_data
 
 logger = make_logger(__name__)
-
-
-def split_data(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Separates data into test, training, and validation data sets randomly (deterministic).
-
-    Training and validation data sets are each 45% of the original data set, and the
-    test data is 10%. The random selection of data is not stratified based on quality.
-
-    :param data: the data to split into test, train, and validation sets
-    :returns: in order, the train, validation, and test data sets
-    """
-    test_data: pd.DataFrame = data.sample(frac=0.1, random_state=0)
-    nontest_data: pd.DataFrame = data[~(data.isin(test_data))].dropna(how="all")
-    train_data: pd.DataFrame = nontest_data.sample(frac=0.5, random_state=0)
-    validation_data: pd.DataFrame = nontest_data[(nontest_data.isin(train_data))].dropna(how="all")
-    return train_data, validation_data, test_data
-
 
 if __name__ == "__main__":
     
