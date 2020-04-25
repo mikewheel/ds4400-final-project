@@ -46,21 +46,18 @@ if __name__ == "__main__":
     ww_train_y, ww_valid_y, ww_test_y = [df.iloc[:, range(11, 12)]
                                          for df in [ww_train, ww_valid, ww_test]]
     
-    logger.info(f'BEGIN: calculate basis function expansions')
     powers_list = generate_exponents()
-    # generating a list of phi(x) for different basis functions
-    rw_train_x_list, rw_valid_x_list, rw_test_x_list = [
-        [expand_basis(df, powers)
-         for powers in powers_list]
-        for df in [rw_train_x, rw_valid_x, rw_test_x]
-    ]
-    ww_train_x_list, ww_valid_x_list, ww_test_x_list = [
-        [expand_basis(df, powers)
-         for powers in powers_list]
-        for df in [ww_train_x, ww_valid_x, ww_test_x]
-    ]
+    logger.info(f'Generating a list of phi(x) for different basis functions...')
     
-    logger.info(f'BEGIN: merge red wine and white wine data for classification purposes.')
+    rw_train_x_list, rw_valid_x_list, rw_test_x_list = [
+        [expand_basis(df, powers) for powers in powers_list]
+        for df in [rw_train_x, rw_valid_x, rw_test_x]]
+    
+    ww_train_x_list, ww_valid_x_list, ww_test_x_list = [
+        [expand_basis(df, powers) for powers in powers_list]
+        for df in [ww_train_x, ww_valid_x, ww_test_x]]
+    
+    logger.info(f'Merging red wine and white wine data for classification purposes.')
     all_train_x_list = []
     all_valid_x_list = []
     all_test_x_list = []
@@ -79,7 +76,7 @@ if __name__ == "__main__":
     all_valid_y = np.repeat([1, 0], [ww_valid_x_list[0].shape[0], rw_valid_x_list[0].shape[0]], axis=0)
     all_test_y = np.repeat([1, 0], [ww_test_x_list[0].shape[0], rw_test_x_list[0].shape[0]], axis=0)
     
-    # TODO -- make these work with models.utils and the new model classes
+    # TODO -- make these work with models.utils and the new model factories
     if model_choice == "logistic":
         logger.info(f'BEGIN: logistic classifier')
         run_logistic_models(all_train_x_list, all_valid_x_list, all_test_x_list,
