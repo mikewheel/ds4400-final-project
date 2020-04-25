@@ -22,8 +22,8 @@ def plot_roc_auc(model, title, x_test, y_test, output_dir) -> None:
     tpr = dict()
     roc_auc = dict()
     
-    for i in range(2):
-        fpr[i], tpr[i], thresholds = roc_curve(y_test[:, i], y_predictions[:, i])
+    for i in range(1):
+        fpr[i], tpr[i], thresholds = roc_curve(y_test, y_predictions)
         roc_auc[i] = auc(fpr[i], tpr[i])
 
     p = figure(title=f'ROC for {title}', plot_width=800, plot_height=800, x_range=(0, 1.05), y_range=(0, 1.05))
@@ -31,6 +31,5 @@ def plot_roc_auc(model, title, x_test, y_test, output_dir) -> None:
     p.ylabel('True Positive Rate')
     
     p.line([0, 1], [0, 1], line_width=1, line_color="blue")
-    p.line(fpr[0], tpr[0], line_width=2, line_color="red", legend_label=f'red wine: area = {round(roc_auc[0], 2)}')
-    p.line(fpr[1], tpr[1], line_width=2, line_color="orange", legend_label=f'white wine: area = {round(roc_auc[1], 2)}')
+    p.line(fpr[0], tpr[0], line_width=2, line_color="orange", legend_label=f'white wine: area = {round(roc_auc[0], 2)}')
     save(p)
