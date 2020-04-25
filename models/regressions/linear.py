@@ -1,19 +1,15 @@
 """
-A file for creating linear regression models and saving them to file.
+Classes for creating and saving linear regression models.
 
 Written by Michael Wheeler and Jay Sherman
 """
 import os
-import pickle
 from contextlib import suppress
 from typing import List
 
 import pandas as pd
-from sklearn.linear_model import LinearRegression, Ridge
-from sklearn.metrics import mean_squared_error
 
 from config import OUTPUT_DATA_DIR, BFE_DESCS, make_logger
-from text_reports.utils import log_linear_regression
 
 logger = make_logger(__name__)
 
@@ -29,7 +25,7 @@ class LinearRegressionModelFactory:
     
     def __init__(self):
         self.ensure_output_dirs_exist()
-        
+    
     def ensure_output_dirs_exist(self):
         logger.debug("Checking for linear regression model output directories...")
         with suppress(FileExistsError):
@@ -38,59 +34,6 @@ class LinearRegressionModelFactory:
             os.mkdir(self.__class__.output_root / "red")
         with suppress(FileExistsError):
             os.mkdir(self.__class__.output_root / "white")
-
-
-def run_linear_models_help(train_x: pd.DataFrame,
-                           valid_x: pd.DataFrame,
-                           test_x: pd.DataFrame,
-                           train_y: pd.DataFrame,
-                           valid_y: pd.DataFrame,
-                           test_y: pd.DataFrame,
-                           color: str,
-                           bfe_desc: str):
-    """
-    Helper... FIXME
-    :param train_x: the input data for the model for the training set
-    :param valid_x: the input data for the model for the validation set
-    :param test_x: the input data for the model for the test set
-    :param train_y: the quality of the wines in the training set
-    :param valid_y: the quality of the wines in the validation set
-    :param test_y: the quality of the wines in the test set
-    :param color: the color of the wine ("red" or "white")
-    :param bfe_desc: a description of the basis function expansion used
-    """
-    
-    logger.info(f"BEGIN: generate linear regression models with BFE = {bfe_desc}")
-    models = [[lam, Ridge(random_state=0, alpha=lam, fit_intercept=False, normalize=False)]
-              for lam in [0.01, 0.1, 1, 10]]
-    models.append([0, LinearRegression()])
-    
-    logger.debug(f'Training and evaluating {len(models)} model-hyperparameter combos...')
-    for model in models:
-        model[1].fit(train_x, train_y)
-        theta = model[1].coef_
-        model.append(theta)
-        error = mean_squared_error(valid_y, model[1].predict(valid_x))
-        model.append(error)
-    
-    models.sort(key=lambda a: a[3])
-    best_model = models[0]
-    logger.debug(f"Found optimal lambda for linear model with BFE = {bfe_desc}: {best_model[0]}")
-    
-    train_error = mean_squared_error(train_y, best_model[1].predict(train_x))
-    valid_error = mean_squared_error(valid_y, best_model[1].predict(valid_x))
-    test_error = mean_squared_error(test_y, best_model[1].predict(test_x))
-    
-    dir_ = OUTPUT_DATA_DIR / "linear" / color / bfe_desc
-    with suppress(FileExistsError):
-        os.mkdir(dir_)
-    
-    logger.info("Writing coefficients to disk...")
-    with open(dir_ / "model.p", "wb") as f:
-        pickle.dump(best_model[1], f)
-    
-    logger.info("Writing performance report to disk...")
-    log_linear_regression(best_model[2], best_model[0], train_error, valid_error, test_error, dir_)
 
 
 def run_linear_models(rw_train_x_bfes: List[pd.DataFrame],
