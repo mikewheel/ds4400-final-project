@@ -41,10 +41,12 @@ class SupportVectorModelFactory(ModelFactory):
         self.models = self.generate_model_instances()
         
     def title(self):
+        """Produces a unique chart title for plotting."""
         lambda_, best_model = self.best_model()
         return f'SVM ({self.kernel} kernel) {self.bfe_desc} λ={lambda_}'
     
     def ensure_output_dirs_exist(self) -> None:
+        """Checks that the directory structure for saving model results exists on disk."""
         logger.debug("Checking for SVM model output directories...")
         with suppress(FileExistsError):
             mkdir(self.__class__.output_root)
@@ -52,12 +54,19 @@ class SupportVectorModelFactory(ModelFactory):
             mkdir(self.__class__.output_root / self.kernel)
     
     def generate_model_instances(self):
+        """Enumerates instances of model classes based on hyperparameter.
+        :return: A dictionary mapping lambda to sklearn model (and later coeffs and error).
+        """
         return {lambda_: {
             "model": SVC(random_state=0, C=(1 / lambda_ if lambda_ != 0 else 0), kernel=self.kernel, degree=3)}
             for lambda_ in self.__class__.lambdas}
     
     @staticmethod
     def get_coeffs(model):
+        """Provides the coefficients of the fully-trained model.
+        :param model: A trained model of the same type as the factory itself.
+        :return: An array of floats.
+        """
         if model.kernel == "linear":
             return {"ω": model.coef_}
         else:
@@ -65,19 +74,33 @@ class SupportVectorModelFactory(ModelFactory):
     
     @staticmethod
     def get_error(model, X, y):
+        """Calculates error on a trained model according to a metric appropriate for this model type.
+        :param model: A trained model of the same type as the factory itself.
+        :param X: A matrix of explanatory variables.
+        :param y: A vector of response variables.
+        :return: A float.
+        """
         predictions = model.predict(X)
         return sum([1 for _ in range(len(y)) if y[_] != predictions[_]]) / len(predictions)
     
     def best_model(self):
+        """Returns the trained model with the lowest computed error out of all of `self.models`
+        :return: A trained model of the same type as the factory itself."""
         best_model_key = min(self.models, key=lambda entry: self.models[entry]["error"])
         return best_model_key, self.models[best_model_key]["model"]
     
     def target_output_dir(self):
+        """Generates an appropriate subdirectory under the output dirs based on model hyperparameters and factory
+        attributes.
+        :return: A pathlib Path under `self.output_root`.
+        """
         if not self.kernel or not self.bfe_desc:
             raise ValueError(f'Cannot create path when kernel = {self.kernel} and bfe_desc = {self.bfe_desc}')
         return self.__class__.output_root / self.kernel / self.bfe_desc
     
     def report_test_results(self, train_x, valid_x, test_x, train_y, valid_y, test_y):
+        """Serializes `self.best_model()` and writes it to disk. Computes model performance metrics across train,
+        validation, and test sets. Produces report text and plots if applicable."""
         lambda_, best_model = self.best_model()
         omega = self.get_coeffs(best_model).get("ω")
         

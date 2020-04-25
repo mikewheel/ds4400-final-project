@@ -51,6 +51,7 @@ def run_models_all_bfes(model_factory_class, train_x, valid_x, test_x, train_y, 
 
 
 def run_models_one_bfe(model_factory, train_x, valid_x, test_x, train_y, valid_y, test_y):
+    """Trains and evaluates models across a single basis function expansion."""
     for lambda_, model_dict in model_factory.models.items():
         model = model_dict["model"]
         model.fit(train_x, train_y)
