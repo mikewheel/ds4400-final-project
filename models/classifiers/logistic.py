@@ -34,26 +34,3 @@ class LogisticModelFactory:
         logger.debug("Checking for logistic regression model output directories...")
         with suppress(FileExistsError):
             os.mkdir(self.__class__.output_root)
-
-
-def run_logistic_models(train_x_list: List[pd.DataFrame],
-                        valid_x_list: List[pd.DataFrame],
-                        test_x_list: List[pd.DataFrame],
-                        train_y: pd.DataFrame,
-                        valid_y: pd.DataFrame,
-                        test_y: pd.DataFrame):
-    """
-    Run logistic regression to classify the wine as white or red.
-    
-    :param train_x_list: a list of the input features for the training set with basis function expansions applied
-    :param valid_x_list: a list of the input features for the validation set with basis function expansions applied
-    :param test_x_list: a list of the input features for the test set with basis function expansions applied
-    :param train_y: the quality of the wines in the training set
-    :param valid_y: the quality of the wines in the validation set
-    :param test_y: the quality of the wines in the test set
-    """
-    
-    for index, bfe_desc in enumerate(BFE_DESCS):
-        logger.info(f'Training logistic regression models with BFE {bfe_desc}...')
-        run_logistic_models_help(train_x_list[index], valid_x_list[index], test_x_list[index],
-                                 train_y, valid_y, test_y, bfe_desc)

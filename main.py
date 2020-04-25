@@ -11,9 +11,9 @@ import pandas as pd
 
 from basis_functions.expansions import expand_basis, generate_exponents
 from config import INPUT_DATA_DIR, make_logger
-from models.classifiers.logistic import run_logistic_models
-from models.classifiers.svm import run_svm_models
-from models.regressions.linear import run_linear_models
+from models.classifiers.logistic import LogisticModelFactory, run_logistic_models
+from models.classifiers.svm import SupportVectorModelFactory, run_svm_models
+from models.regressions.linear import LinearRegressionModelFactory, run_linear_models
 from models.utils import split_data
 
 logger = make_logger(__name__)
@@ -31,7 +31,6 @@ if __name__ == "__main__":
     white_wines = pd.read_csv(INPUT_DATA_DIR / "wine_quality_white.csv")
     
     logger.info('Splitting data into training, validation, and test sets.')
-    # TODO -- rename or group into a dict
     rw_train, rw_valid, rw_test = split_data(red_wines)
     ww_train, ww_valid, ww_test = split_data(white_wines)
     
@@ -45,9 +44,8 @@ if __name__ == "__main__":
     ww_train_y, ww_valid_y, ww_test_y = [df.iloc[:, range(11, 12)]
                                          for df in [ww_train, ww_valid, ww_test]]
     
+    logger.info(f'Generating a list of phi(x) for different basis functions.')
     powers_list = generate_exponents()
-    logger.info(f'Generating a list of phi(x) for different basis functions...')
-    
     rw_train_x_list, rw_valid_x_list, rw_test_x_list = [
         [expand_basis(df, powers) for powers in powers_list]
         for df in [rw_train_x, rw_valid_x, rw_test_x]]
@@ -56,7 +54,7 @@ if __name__ == "__main__":
         [expand_basis(df, powers) for powers in powers_list]
         for df in [ww_train_x, ww_valid_x, ww_test_x]]
     
-    logger.info(f'Merging red wine and white wine data for classification purposes.')
+    logger.info(f'Merging red wine and white wine datasets for classifier training.')
     all_train_x_list = []
     all_valid_x_list = []
     all_test_x_list = []
@@ -70,35 +68,26 @@ if __name__ == "__main__":
         combined_test_x = pd.concat([ww_test_x_list[i], rw_test_x_list[i]], ignore_index=True)
         all_test_x_list.append(combined_test_x)
     
-    # FIXME -- convert these to dataframes so the type matches below
     all_train_y = np.repeat([1, 0], [ww_train_x_list[0].shape[0], rw_train_x_list[0].shape[0]], axis=0)
     all_valid_y = np.repeat([1, 0], [ww_valid_x_list[0].shape[0], rw_valid_x_list[0].shape[0]], axis=0)
     all_test_y = np.repeat([1, 0], [ww_test_x_list[0].shape[0], rw_test_x_list[0].shape[0]], axis=0)
     
     # TODO -- make these work with models.utils and the new model factories
-    if model_choice == "logistic":
-        logger.info(f'BEGIN: logistic classifier')
+    if model_choice in ("logistic", "all"):
+        logger.info(f'BEGIN: logistic classifier.')
         run_logistic_models(all_train_x_list, all_valid_x_list, all_test_x_list,
                             all_train_y, all_valid_y, all_test_y)
-    elif model_choice == "linear":
+    
+    if model_choice in ("svm", "all"):
+        logger.info(f'BEGIN: SVM classifier.')
+        kernels = ["rbf", "linear", "poly"]
+        for kernel in kernels:
+            run_svm_models(all_train_x_list, all_valid_x_list, all_test_x_list,
+                           all_train_y, all_valid_y, all_test_y, kenel=kernel)
+        
+    if model_choice in ("linear", "all"):
         logger.info(f'BEGIN: linear regression.')
         run_linear_models(rw_train_x_list, rw_valid_x_list, rw_test_x_list,
-                          rw_train_y, rw_valid_y, rw_test_y,
-                          ww_train_x_list, ww_valid_x_list, ww_test_x_list,
-                          ww_train_y, ww_valid_y, ww_test_y)
-    elif model_choice == "svm":
-        logger.info(f'BEGIN: SVM classifier.')
-        run_svm_models(all_train_x_list, all_valid_x_list, all_test_x_list,
-                       all_train_y, all_valid_y, all_test_y)
-    elif model_choice == "all":
-        logger.info(f'BEGIN: all models.')
-        run_logistic_models(all_train_x_list, all_valid_x_list, all_test_x_list,
-                            all_train_y, all_valid_y, all_test_y)
-        run_linear_models(rw_train_x_list, rw_valid_x_list, rw_test_x_list,
-                          rw_train_y, rw_valid_y, rw_test_y,
-                          ww_train_x_list, ww_valid_x_list, ww_test_x_list,
-                          ww_train_y, ww_valid_y, ww_test_y)
-        run_svm_models(all_train_x_list, all_valid_x_list, all_test_x_list,
-                       all_train_y, all_valid_y, all_test_y)
-    else:
-        raise ValueError(f'Model type not recognized: "{model_choice}".')
+                          rw_train_y, rw_valid_y, rw_test_y, color="red")
+        run_linear_models(ww_train_x_list, ww_valid_x_list, ww_test_x_list,
+                          ww_train_y, ww_valid_y, ww_test_y, color="white")

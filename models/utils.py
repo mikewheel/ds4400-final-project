@@ -10,7 +10,7 @@ from typing import Tuple
 
 from pandas import DataFrame
 
-from config import make_logger
+from config import BFE_DESCS, make_logger
 
 logger = make_logger(__name__)
 
@@ -31,7 +31,19 @@ def split_data(data: DataFrame) -> Tuple[DataFrame, DataFrame, DataFrame]:
     return train_data, validation_data, test_data
 
 
-def run_models(train_x: DataFrame,
+def run_models_all_bfes(train_x: DataFrame,  # FIXME include model factory class
+                        valid_x: DataFrame,
+                        test_x: DataFrame,
+                        train_y: DataFrame,
+                        valid_y: DataFrame,
+                        test_y: DataFrame,
+                        **kwargs):
+    for index, bfe_desc in enumerate(BFE_DESCS):
+        logger.info(f'Begin training: Model {None}, BFE {bfe_desc}, {kwargs if kwargs else ""}...')
+        run_models(train_x, valid_x, test_x, train_y, valid_y, test_y, bfe_desc, **kwargs)
+
+
+def run_models(train_x: DataFrame,  # FIXME include model factory class
                valid_x: DataFrame,
                test_x: DataFrame,
                train_y: DataFrame,
