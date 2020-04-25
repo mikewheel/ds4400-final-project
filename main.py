@@ -37,7 +37,7 @@ def split_data(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataF
 
 if __name__ == "__main__":
     
-    parser = ArgumentParser()
+    parser = ArgumentParser(description="DS4400 Final Project Spring 2020, by Michael Wheeler and Jay Sherman.")
     parser.add_argument("--model", nargs=1, type=str, metavar="MODEL CHOICE", help="linear, logistic, svm, or all")
     args = parser.parse_args()
     model_choice = args.model[0].lower()
