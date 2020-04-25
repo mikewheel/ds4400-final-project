@@ -13,7 +13,7 @@ from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.metrics import mean_squared_error
 
 from config import OUTPUT_DATA_DIR, BFE_DESCS, make_logger
-from text_reports.logging_utils import log_linear_regression
+from text_reports.utils import log_linear_regression
 
 logger = make_logger(__name__)
 
@@ -61,7 +61,7 @@ def run_linear_models_help(train_x: pd.DataFrame,
     models.sort(key=lambda a: a[3])
     best_model = models[0]
     logger.debug(f"Found optimal lambda for linear model with BFE = {bfe_desc}: {best_model[0]}")
-
+    
     train_error = mean_squared_error(train_y, best_model[1].predict(train_x))
     valid_error = mean_squared_error(valid_y, best_model[1].predict(valid_x))
     test_error = mean_squared_error(test_y, best_model[1].predict(test_x))

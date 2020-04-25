@@ -14,7 +14,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.svm import SVC
 
 from config import OUTPUT_DATA_DIR, BFE_DESCS, make_logger
-from text_reports.logging_utils import log_classification
+from text_reports.utils import log_classification
 
 logger = make_logger(__name__)
 
@@ -77,11 +77,11 @@ def run_svm_models_help(train_x: pd.DataFrame,
     dir_ = OUTPUT_DATA_DIR / "svm" / kernel / bfe_desc
     with suppress(FileExistsError):
         os.mkdir(dir_)
-
+    
     logger.info("Writing coefficients to disk...")
     with open(dir_ / "model.p", "wb") as f:
         pickle.dump(best_model, f)
-
+    
     logger.info("Writing performance report to disk...")
     log_classification(best_model[2], best_model[0], train_cm, valid_cm, test_cm, dir_)
 
@@ -115,10 +115,10 @@ def run_svm_models(train_x_list: List[pd.DataFrame],
     dir_ = OUTPUT_DATA_DIR / "svm"
     with suppress(FileExistsError):
         os.mkdir(dir_)
-        
+    
     with suppress(FileExistsError):
         os.mkdir(dir_ / "rbf")
-        
+    
     with suppress(FileExistsError):
         os.mkdir(dir_ / "linear")
     
