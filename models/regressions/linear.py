@@ -57,7 +57,7 @@ class LinearRegressionModelFactory(ModelFactory):
         return mean_squared_error(y, model.predict(X))
     
     def best_model(self):
-        best_model_key = min(self.models, key=lambda entry: entry["error"])
+        best_model_key = min(self.models, key=lambda entry: self.models[entry]["error"])
         return best_model_key, self.models[best_model_key]["model"]
     
     def target_output_dir(self):

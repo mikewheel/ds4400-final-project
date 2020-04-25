@@ -57,7 +57,7 @@ class LogisticModelFactory(ModelFactory):
         return sum([1 for _ in range(len(y)) if y[_] != predictions[_]]) / len(predictions)
     
     def best_model(self):
-        best_model_key = min(self.models, key=lambda entry: entry["error"])
+        best_model_key = min(self.models, key=lambda entry: self.models[entry]["error"])
         return best_model_key, self.models[best_model_key]["model"]
     
     def target_output_dir(self):
