@@ -82,7 +82,7 @@ if __name__ == "__main__":
         kernels = ["rbf", "linear", "poly"]
         for kernel in kernels:
             run_models_all_bfes(SupportVectorModelFactory, all_train_x_list, all_valid_x_list, all_test_x_list,
-                                all_train_y, all_valid_y, all_test_y, kenel=kernel)
+                                all_train_y, all_valid_y, all_test_y, kernel=kernel)
     
     if model_choice in ("linear", "all"):
         logger.info(f'BEGIN: linear regression.')
