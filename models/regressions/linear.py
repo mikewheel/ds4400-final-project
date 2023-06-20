@@ -47,7 +47,7 @@ class LinearRegressionModelFactory(ModelFactory):
         """Enumerates instances of model classes based on hyperparameter.
         :return: A dictionary mapping lambda to sklearn model (and later coeffs and error).
         """
-        output = {lambda_: {"model": Ridge(random_state=0, alpha=lambda_, fit_intercept=False, normalize=False)}
+        output = {lambda_: {"model": Ridge(random_state=0, alpha=lambda_, fit_intercept=False)}
                   for lambda_ in self.__class__.lambdas}
         output[0] = {"model": LinearRegression()}
         return output

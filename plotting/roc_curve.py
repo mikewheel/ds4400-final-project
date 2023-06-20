@@ -26,7 +26,7 @@ def plot_roc_auc(model, title, x_test, y_test, output_dir) -> None:
         fpr[i], tpr[i], thresholds = roc_curve(y_test, y_predictions)
         roc_auc[i] = auc(fpr[i], tpr[i])
 
-    p = figure(title=f'ROC for {title}', plot_width=800, plot_height=800, x_range=(0, 1.05), y_range=(0, 1.05))
+    p = figure(title=f'ROC for {title}', width=800, height=800, x_range=(0, 1.05), y_range=(0, 1.05))
     p.xaxis.axis_label = 'False Positive Rate'
     p.yaxis.axis_label = 'True Positive Rate'
     

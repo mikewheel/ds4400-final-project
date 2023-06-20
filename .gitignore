@@ -1,5 +1,6 @@
 # Data output files
 data/output/
+!data/output/README.md
 
 # Editor Files
 .idea/

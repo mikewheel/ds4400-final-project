@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser = ArgumentParser(description="DS4400 Final Project Spring 2020, by Michael Wheeler and Jay Sherman. "
                                         "Classifiers and regressions on wine data.")
     parser.add_argument("--model", choices=["linear", "logistic", "svm", "all"], type=str.lower,
-                        metavar="MODEL_CHOICE", help='"linear", "logistic", "svm", or "all"')
+                        metavar="MODEL_CHOICE", help='"linear", "logistic", "svm", or "all"', default="all")
     args = parser.parse_args()
     model_choice = args.model
     

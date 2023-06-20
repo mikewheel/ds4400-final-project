@@ -17,7 +17,7 @@ machines to classify a wine by color.
 ## How?
 To run the code:
   - Clone the repository from GitHub: `git clone https://github.com/mikewheel/ds4400-final-project`
-  - Create and activate a Python 3.8 virtual environment: `python3.8 -m venv virtualenv && source virtualenv/bin
+  - Create and activate a Python 3.11 virtual environment: `python3.11 -m venv virtualenv && source virtualenv/bin
   /activate`
-  - Install the project requirements: `pip install -r requirements.txt`
+  - Install the project requirements: `pip install -r requirements-3.11.4.txt`
   - Execute training: `python3 -m main`
